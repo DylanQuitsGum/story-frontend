@@ -30,6 +30,7 @@ const snackbar = ref({
   color: "",
   text: "",
 });
+
 const user = ref({
   firstName: "",
   lastName: "",
