@@ -30,7 +30,7 @@ function logout() {
 
 <template>
   <div>
-    <v-app-bar app dark>
+    <v-app-bar app dark flat>
       <router-link :to="{ name: 'home' }">
         <v-img
           class="mx-2"

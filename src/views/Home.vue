@@ -8,6 +8,7 @@
   background: url("./../assets/bg3.jpeg");
   background-repeat: no-repeat;
   background-size: cover;
+  background-position: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
