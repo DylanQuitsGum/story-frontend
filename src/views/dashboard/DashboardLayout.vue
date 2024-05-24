@@ -10,12 +10,24 @@
       <h1>Test</h1>
       <v-navigation-drawer v-mode="drawer" permanent>
         <v-list>
-          <v-list-item link :to="{ path: '/dashboard/overview' }" key="1"
-            >Overview</v-list-item
-          >
-          <v-list-item link :to="{ path: '/dashboard/settings' }" key="2"
-            >Stories</v-list-item
-          >
+          <v-list-item link :to="{ path: '/dashboard/overview' }" key="1">
+            <template v-slot:prepend>
+              <img src="./../../assets/icons/house.png" width="20" />
+            </template>
+            <div class="px-2">Overview</div>
+          </v-list-item>
+          <v-list-item link :to="{ path: '/dashboard/settings' }" key="2">
+            <template v-slot:prepend>
+              <img src="./../../assets/icons/reading-book.png" width="20" />
+            </template>
+            <div class="px-2">Stories</div>
+          </v-list-item>
+          <v-list-item link :to="{ path: '/dashboard/characters' }" key="3">
+            <template v-slot:prepend>
+              <img src="./../../assets/icons/girl.png" width="20" />
+            </template>
+            <div class="px-2">Characters</div>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
 

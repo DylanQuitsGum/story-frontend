@@ -31,18 +31,15 @@ const router = createRouter({
           path: "settings",
           component: () => import("./views/dashboard/Settings.vue"),
         },
+        {
+          path: "characters",
+          component: () => import("./views/dashboard/Characters.vue"),
+        },
+        {
+          path: "stories",
+          component: () => import("./views/dashboard/Stories.vue"),
+        },
       ],
-    },
-    {
-      path: "/recipe/:id",
-      name: "editRecipe",
-      props: true,
-      component: () => import("./views/EditRecipe.vue"),
-    },
-    {
-      path: "/ingredients",
-      name: "ingredients",
-      component: () => import("./views/IngredientList.vue"),
     },
   ],
 });
