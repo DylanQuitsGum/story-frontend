@@ -10,20 +10,30 @@
       <h1>Test</h1>
       <v-navigation-drawer v-mode="drawer" permanent>
         <v-list>
-          <v-list-item key="1">Item 1</v-list-item>
-          <v-list-item key="2">Item 1</v-list-item>
-          <v-list-item key="3">Item 1</v-list-item>
-          <v-list-item>Item 1</v-list-item>
-          <v-list-item>Item 1</v-list-item>
+          <v-list-item link :to="{ path: '/dashboard/overview' }" key="1">
+            <template v-slot:prepend>
+              <img src="./../../assets/icons/house.png" width="20" />
+            </template>
+            <div class="px-2">Overview</div>
+          </v-list-item>
+          <v-list-item link :to="{ path: '/dashboard/settings' }" key="2">
+            <template v-slot:prepend>
+              <img src="./../../assets/icons/reading-book.png" width="20" />
+            </template>
+            <div class="px-2">Stories</div>
+          </v-list-item>
+          <v-list-item link :to="{ path: '/dashboard/characters' }" key="3">
+            <template v-slot:prepend>
+              <img src="./../../assets/icons/girl.png" width="20" />
+            </template>
+            <div class="px-2">Characters</div>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
 
       <v-main>
         <v-container>
-          <h1>What</h1>
-          <h1>What</h1>
-          <h1>What</h1>
-          <h1>What</h1>
+          <router-view></router-view>
         </v-container>
       </v-main>
     </v-layout>
