@@ -10,20 +10,18 @@
       <h1>Test</h1>
       <v-navigation-drawer v-mode="drawer" permanent>
         <v-list>
-          <v-list-item key="1">Item 1</v-list-item>
-          <v-list-item key="2">Item 1</v-list-item>
-          <v-list-item key="3">Item 1</v-list-item>
-          <v-list-item>Item 1</v-list-item>
-          <v-list-item>Item 1</v-list-item>
+          <v-list-item link :to="{ path: '/dashboard/overview' }" key="1"
+            >Overview</v-list-item
+          >
+          <v-list-item link :to="{ path: '/dashboard/settings' }" key="2"
+            >Stories</v-list-item
+          >
         </v-list>
       </v-navigation-drawer>
 
       <v-main>
         <v-container>
-          <h1>What</h1>
-          <h1>What</h1>
-          <h1>What</h1>
-          <h1>What</h1>
+          <router-view></router-view>
         </v-container>
       </v-main>
     </v-layout>

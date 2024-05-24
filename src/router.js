@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: "/",
@@ -22,6 +22,16 @@ const router = createRouter({
       path: "/dashboard",
       name: "dashboard",
       component: () => import("./views/dashboard/DashboardLayout.vue"),
+      children: [
+        {
+          path: "overview",
+          component: () => import("./views/dashboard/Overview.vue"),
+        },
+        {
+          path: "settings",
+          component: () => import("./views/dashboard/Settings.vue"),
+        },
+      ],
     },
     {
       path: "/recipe/:id",
