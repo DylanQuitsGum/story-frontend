@@ -1,4 +1,12 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {
+  createRouter,
+  createWebHistory,
+  createWebHashHistory,
+} from "vue-router";
+import Dashboard from "@views/dashboard/Dashboard.vue";
+import Overview from "@views/dashboard/Overview.vue";
+import Characters from "@views/dashboard/Characters.vue";
+import Stories from "@views/dashboard/Stories.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -9,7 +17,7 @@ const router = createRouter({
       component: () => import("./views/Home.vue"),
     },
     {
-      path: "/",
+      path: "/login",
       name: "login",
       component: () => import("./views/Login.vue"),
     },
@@ -21,23 +29,22 @@ const router = createRouter({
     {
       path: "/dashboard",
       name: "dashboard",
-      component: () => import("./views/dashboard/DashboardLayout.vue"),
+      component: Dashboard,
       children: [
         {
-          path: "overview",
-          component: () => import("./views/dashboard/Overview.vue"),
-        },
-        {
-          path: "settings",
-          component: () => import("./views/dashboard/Settings.vue"),
-        },
-        {
-          path: "characters",
-          component: () => import("./views/dashboard/Characters.vue"),
+          path: "",
+          name: "overview",
+          component: Overview,
         },
         {
           path: "stories",
-          component: () => import("./views/dashboard/Stories.vue"),
+          name: "stories",
+          component: Stories,
+        },
+        {
+          path: "characters",
+          name: "characters",
+          component: Characters,
         },
       ],
     },

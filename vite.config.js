@@ -8,13 +8,16 @@ dns.setDefaultResultOrder("verbatim");
 import vuetify from "vite-plugin-vuetify";
 
 export default () => {
-  const baseURL = process.env.APP_ENV === "development" ? "/" : "/";
+  const baseURL =
+    process.env.APP_ENV === "development" ? "/" : "http://107.23.63.118/";
 
   return defineConfig({
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),
         "@assets": path.resolve(__dirname, "src/assets"),
+        "@components": path.resolve(__dirname, "src/components"),
+        "@views": path.resolve(__dirname, "src/views"),
       },
     },
     plugins: [vue(), vuetify({ autoImport: true })],

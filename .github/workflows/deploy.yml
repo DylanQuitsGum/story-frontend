@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - DT_Feature_Connect
 
 jobs:
   deploy:
@@ -37,5 +38,11 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > key.pem
           chmod 600 key.pem
 
-          rsync -avz --exclude 'node_modules' -e "ssh -o StrictHostKeyChecking=no -i key.pem" dist/* $EC2_USER@$EC2_HOST:$TARGET_DIR
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" dist/* $EC2_USER@$EC2_HOST:/home/ec2-user/frontend
+
+          ssh -i key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST '
+          sudo rm -rf /var/www/html/assets
+          sudo mv -f /home/ec2-user/frontend/* /var/www/html
+          exit
+          '
           rm key.pem
