@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - DT_Feature_Connect
 
 jobs:
   deploy:
