@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - DT_Feature_Connect
 
 jobs:
   deploy:
@@ -40,8 +41,7 @@ jobs:
           rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" dist/* $EC2_USER@$EC2_HOST:/home/ec2-user/frontend
 
           ssh -i key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST '
-          sudo mv /home/$EC2_USER/frontend/* $TARGET_DIR
-          sudo chown -R apache:apache $TARGET_DIR
+          sudo mv /home/$EC2_USER/frontend/* /var/www/html
           exit
           '
           rm key.pem
