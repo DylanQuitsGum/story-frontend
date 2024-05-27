@@ -41,7 +41,7 @@ jobs:
 
           ssh -i key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST '
           sudo mv /home/$EC2_USER/frontend/* $TARGET_DIR
-          sudo chown -R www-data:www-data $TARGET_DIR
+          sudo chown -R apache:apache $TARGET_DIR
           exit
           '
           rm key.pem
