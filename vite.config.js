@@ -8,8 +8,7 @@ dns.setDefaultResultOrder("verbatim");
 import vuetify from "vite-plugin-vuetify";
 
 export default () => {
-  const baseURL =
-    process.env.APP_ENV === "development" ? "/" : "/recipe-frontend/";
+  const baseURL = process.env.APP_ENV === "development" ? "/" : "/";
 
   return defineConfig({
     resolve: {
