@@ -37,5 +37,11 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > key.pem
           chmod 600 key.pem
 
-          rsync -avz --exclude 'node_modules' -e "ssh -o StrictHostKeyChecking=no -i key.pem" dist/* $EC2_USER@$EC2_HOST:$TARGET_DIR
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" dist/* $EC2_USER@$EC2_HOST:/home/ec2-user/frontend
+
+          ssh -i key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST '
+          sudo mv /home/$EC2_USER/frontend/* $TARGET_DIR
+          sudo chown -R apache:apache $TARGET_DIR
+          exit
+          '
           rm key.pem
