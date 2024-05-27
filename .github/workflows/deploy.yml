@@ -41,7 +41,7 @@ jobs:
           rsync -avz -e "ssh -o StrictHostKeyChecking=no -i key.pem" dist/* $EC2_USER@$EC2_HOST:/home/ec2-user/frontend
 
           ssh -i key.pem -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST '
-          sudo rsync -av --delete /home/ec2-user/frontend/* /var/www/html
+          sudo mv -rf /home/ec2-user/frontend/* /var/www/html
           exit
           '
           rm key.pem
