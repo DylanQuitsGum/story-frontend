@@ -11,13 +11,13 @@
         <h1>Test</h1>
         <v-navigation-drawer permanent>
           <v-list>
-            <v-list-item link :to="{ path: '/dashboard/overview' }" key="1">
+            <v-list-item link :to="{ path: '/dashboard' }" key="1">
               <template v-slot:prepend>
                 <img src="./../../assets/icons/house.png" width="20" />
               </template>
               <div class="px-2">Overview</div>
             </v-list-item>
-            <v-list-item link :to="{ path: '/dashboard/settings' }" key="2">
+            <v-list-item link :to="{ path: '/dashboard/stories' }" key="2">
               <template v-slot:prepend>
                 <img src="./../../assets/icons/reading-book.png" width="20" />
               </template>
