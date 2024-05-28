@@ -1,8 +1,4 @@
-import {
-  createRouter,
-  createWebHistory,
-  createWebHashHistory,
-} from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "@views/dashboard/Dashboard.vue";
 import Overview from "@views/dashboard/Overview.vue";
 import Characters from "@views/dashboard/Characters.vue";
