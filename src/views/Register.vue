@@ -98,7 +98,6 @@ async function createAccount() {
             required
           ></v-text-field>
         </v-card-text>
-
         <v-card-text class="error">
           {{ errorMessage }}
         </v-card-text>
