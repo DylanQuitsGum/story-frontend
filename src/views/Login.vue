@@ -52,7 +52,7 @@ async function login() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
-      router.push({ name: "recipes" });
+      router.push({ name: "dashboard" });
     })
     .catch((error) => {
       console.log(error);
@@ -70,33 +70,35 @@ function closeSnackBar() {
 
 <template>
   <v-container class="container d-flex align-center justify-center" fluid>
-    <v-card class="card rounded-md elevation-1">
-      <v-card-title class="headline mb-2">Login </v-card-title>
-      <v-card-text>
-        <v-text-field
-          v-model="user.email"
-          label="Email"
-          variant="outlined"
-          required
-        ></v-text-field>
+    <v-form @submit.prevent="login">
+      <v-card class="card rounded-md elevation-1">
+        <v-card-title class="headline mb-2">Login </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="user.email"
+            label="Email"
+            variant="outlined"
+            required
+          ></v-text-field>
 
-        <v-text-field
-          v-model="user.password"
-          label="Password"
-          variant="outlined"
-          required
-        ></v-text-field>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn
-          class="login-btn rounded-xl"
-          variant="flat"
-          color="primary"
-          @click="login()"
-          >Login</v-btn
-        >
-      </v-card-actions>
-    </v-card>
+          <v-text-field
+            v-model="user.password"
+            label="Password"
+            variant="outlined"
+            required
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            class="login-btn rounded-xl"
+            variant="flat"
+            color="primary"
+            type="submit"
+            >Login</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-form>
 
     <v-snackbar v-model="snackbar.value" rounded="pill">
       {{ snackbar.text }}
