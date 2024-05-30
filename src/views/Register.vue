@@ -30,6 +30,8 @@ import UserServices from "../services/UserServices.js";
 
 const router = useRouter();
 
+const errorMessage = ref("");
+
 const user = ref({
   firstName: "",
   lastName: "",
@@ -45,9 +47,18 @@ onMounted(async () => {
 });
 
 async function createAccount() {
-  console.log("create account");
-  const data = await UserServices.addUser(user.value);
-  console.log(data);
+  try {
+    const data = await UserServices.addUser(user.value);
+    console.log("data", data);
+    errorMessage.value = "";
+  } catch (err) {
+    const { status, data } = err.response;
+    if (status == 400) {
+      errorMessage.value = data.message;
+    } else {
+      errorMessage.value = "";
+    }
+  }
 }
 </script>
 
@@ -86,6 +97,10 @@ async function createAccount() {
             variant="outlined"
             required
           ></v-text-field>
+        </v-card-text>
+
+        <v-card-text>
+          {{ errorMessage }}
         </v-card-text>
         <v-card-actions>
           <v-btn
