@@ -25,6 +25,9 @@ import { useRouter } from "vue-router";
 import UserServices from "../services/UserServices.js";
 
 const router = useRouter();
+
+const errorMessage = ref("");
+
 const snackbar = ref({
   value: false,
   color: "",
@@ -46,20 +49,18 @@ onMounted(async () => {
 });
 
 async function login() {
-  await UserServices.loginUser(user)
-    .then((data) => {
-      window.localStorage.setItem("user", JSON.stringify(data.data));
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = "Login successful!";
-      router.push({ name: "dashboard" });
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
+  try {
+    const data = await UserServices.loginUser(user);
+    console.log("data", data);
+    errorMessage.value = "";
+  } catch (err) {
+    const { status, data } = err.response;
+    if (status == 400) {
+      errorMessage.value = data.message;
+    } else {
+      errorMessage.value = "";
+    }
+  }
 }
 
 function closeSnackBar() {
@@ -88,26 +89,19 @@ function closeSnackBar() {
             required
           ></v-text-field>
         </v-card-text>
+        <v-card-text class="error">
+          {{ errorMessage }}
+        </v-card-text>
         <v-card-actions>
           <v-btn
             class="login-btn rounded-xl"
             variant="flat"
             color="primary"
-            type="submit"
+            @click="login()"
             >Login</v-btn
           >
         </v-card-actions>
       </v-card>
     </v-form>
-
-    <v-snackbar v-model="snackbar.value" rounded="pill">
-      {{ snackbar.text }}
-
-      <template v-slot:actions>
-        <v-btn :color="snackbar.color" variant="text" @click="closeSnackBar()">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
   </v-container>
 </template>
