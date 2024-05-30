@@ -56,7 +56,7 @@ async function login() {
 
     if (status == 200) {
       localStorage.setItem("user", JSON.stringify(data));
-      router.push({ name: "dashboard" });
+      router.push({ name: "overview" });
     }
   } catch (err) {
     const { status, data } = err.response || {};

@@ -39,18 +39,18 @@ const user = ref({
   password: "",
 });
 
-onMounted(async () => {
-  localStorage.removeItem("user");
-  // if (localStorage.getItem("user") !== null) {
-  //   router.push({ name: "recipes" });
-  // }
-});
-
 async function createAccount() {
   try {
     const data = await UserServices.addUser(user.value);
-    console.log("data", data);
     errorMessage.value = "";
+
+    const { status } = data;
+
+    if (status == 200) {
+      router.push({
+        name: "login",
+      });
+    }
   } catch (err) {
     const { status, data } = err.response;
     if (status == 400) {
