@@ -21,6 +21,6 @@ export default {
     });
   },
   logoutUser() {
-    return apiClient.post("logout");
+    localStorage.removeItem("user");
   },
 };

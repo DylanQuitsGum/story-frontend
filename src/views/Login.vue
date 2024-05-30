@@ -50,11 +50,17 @@ onMounted(async () => {
 
 async function login() {
   try {
-    const data = await UserServices.loginUser(user);
-    console.log("data", data);
+    const userResult = await UserServices.loginUser(user);
     errorMessage.value = "";
+    const { status, data } = userResult || {};
+
+    if (status == 200) {
+      localStorage.setItem("user", JSON.stringify(data));
+      router.push({ name: "dashboard" });
+    }
   } catch (err) {
-    const { status, data } = err.response;
+    const { status, data } = err.response || {};
+
     if (status == 400) {
       errorMessage.value = data.message;
     } else {

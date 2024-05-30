@@ -1,3 +1,5 @@
 export function isAuthenticated() {
-  return localStorage.getItem("token") !== null;
+  const storedUser = localStorage.getItem("user");
+  const loggedIn = storedUser && JSON.parse(storedUser).token;
+  return loggedIn;
 }
