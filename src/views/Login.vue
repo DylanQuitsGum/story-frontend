@@ -25,6 +25,9 @@ import { useRouter } from "vue-router";
 import UserServices from "../services/UserServices.js";
 
 const router = useRouter();
+
+const errorMessage = ref("");
+
 const snackbar = ref({
   value: false,
   color: "",
@@ -46,20 +49,24 @@ onMounted(async () => {
 });
 
 async function login() {
-  await UserServices.loginUser(user)
-    .then((data) => {
-      window.localStorage.setItem("user", JSON.stringify(data.data));
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = "Login successful!";
-      router.push({ name: "recipes" });
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
+  try {
+    const userResult = await UserServices.loginUser(user);
+    errorMessage.value = "";
+    const { status, data } = userResult || {};
+
+    if (status == 200) {
+      localStorage.setItem("user", JSON.stringify(data));
+      router.push({ name: "overview" });
+    }
+  } catch (err) {
+    const { status, data } = err.response || {};
+
+    if (status == 400) {
+      errorMessage.value = data.message;
+    } else {
+      errorMessage.value = "";
+    }
+  }
 }
 
 function closeSnackBar() {
@@ -70,42 +77,37 @@ function closeSnackBar() {
 
 <template>
   <v-container class="container d-flex align-center justify-center" fluid>
-    <v-card class="card rounded-md elevation-1">
-      <v-card-title class="headline mb-2">Login </v-card-title>
-      <v-card-text>
-        <v-text-field
-          v-model="user.email"
-          label="Email"
-          variant="outlined"
-          required
-        ></v-text-field>
+    <v-form @submit.prevent="login">
+      <v-card class="card rounded-md elevation-1">
+        <v-card-title class="headline mb-2">Login </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="user.email"
+            label="Email"
+            variant="outlined"
+            required
+          ></v-text-field>
 
-        <v-text-field
-          v-model="user.password"
-          label="Password"
-          variant="outlined"
-          required
-        ></v-text-field>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn
-          class="login-btn rounded-xl"
-          variant="flat"
-          color="primary"
-          @click="login()"
-          >Login</v-btn
-        >
-      </v-card-actions>
-    </v-card>
-
-    <v-snackbar v-model="snackbar.value" rounded="pill">
-      {{ snackbar.text }}
-
-      <template v-slot:actions>
-        <v-btn :color="snackbar.color" variant="text" @click="closeSnackBar()">
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
+          <v-text-field
+            v-model="user.password"
+            label="Password"
+            variant="outlined"
+            required
+          ></v-text-field>
+        </v-card-text>
+        <v-card-text class="error">
+          {{ errorMessage }}
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            class="login-btn rounded-xl"
+            variant="flat"
+            color="primary"
+            @click="login()"
+            >Login</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-form>
   </v-container>
 </template>

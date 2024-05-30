@@ -11,20 +11,15 @@ const logoURL = ref("");
 
 onMounted(() => {
   logoURL.value = "./assets/logo.jpeg";
-  user.value = JSON.parse(localStorage.getItem("user"));
+  const storedUser = localStorage.getItem("user");
+  user.value = storedUser && JSON.parse(storedUser);
 });
 
 function logout() {
-  UserServices.logoutUser()
-    .then((data) => {
-      console.log(data);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-  localStorage.removeItem("user");
-  user.value = null;
-  router.push({ name: "login" });
+  UserServices.logoutUser();
+  router.push({
+    name: "home",
+  });
 }
 </script>
 
@@ -43,31 +38,25 @@ function logout() {
       <v-toolbar-title class="title"> DreamCraft </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn class="mx-2" :to="{ name: 'home' }"> Stories </v-btn>
-      <v-btn class="mx-2" :to="{ name: 'register' }"> Register </v-btn>
-      <v-btn v-if="user === null" class="mx-2" :to="{ name: 'login' }">
-        Login
+      <v-btn v-if="!user" class="mx-2" :to="{ name: 'register' }">
+        Register
       </v-btn>
-      <!-- <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'ingredients' }">
-        Ingredients
-      </v-btn> -->
+      <v-btn v-if="user" class="mx-2" :to="{ name: 'overview' }">
+        Dashboard
+      </v-btn>
+      <v-btn v-if="!user" class="mx-2" :to="{ name: 'login' }"> Login </v-btn>
+      <v-btn v-if="user" @click="logout">Logout</v-btn>
       <v-menu v-if="user !== null" min-width="200px" rounded>
         <template v-slot:activator="{ props }">
           <v-btn icon v-bind="props">
             <v-avatar class="mx-auto text-center" color="accent" size="large">
-              <span class="white--text font-weight-bold">{{
-                `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
-              }}</span>
             </v-avatar>
           </v-btn>
         </template>
         <v-card>
           <v-card-text>
             <div class="mx-auto text-center">
-              <v-avatar color="accent">
-                <span class="white--text text-h5">{{
-                  `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
-                }}</span>
-              </v-avatar>
+              <v-avatar color="accent"> </v-avatar>
               <h3>{{ `${user.firstName} ${user.lastName}` }}</h3>
               <p class="text-caption mt-1">
                 {{ user.email }}

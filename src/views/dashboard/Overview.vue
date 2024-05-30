@@ -2,33 +2,40 @@
 
 <script>
 import LanguageServices from "../../services/LanguageServices";
+import { onMounted, ref } from "vue";
 export default {
-  data() {
+  setup() {
+    const languages = ref([]);
+    const loading = ref(true);
+
+    const fetchData = async () => {
+      try {
+        const res = await LanguageServices.getLanguages();
+        const { data, status } = res;
+        languages.value = data;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    onMounted(fetchData);
+
     return {
-      data: [],
+      languages,
+      loading,
     };
   },
-  async mounted() {
-    try {
-      const response = await LanguageServices.getLanguages();
-      this.data = response.data;
-      console.log(this.data);
-    } catch (err) {
-      console.error("Error fetching data", err);
-    }
-  },
-  setup() {},
 };
 </script>
 
 
 <template>
   <div>
-    <h1>Ovewrview</h1>
+    <h1>Overview</h1>
     <div>
-      <pre>
-        {{ data }}
-      </pre>
+      <pre>{{ languages }}</pre>
     </div>
   </div>
 </template>
