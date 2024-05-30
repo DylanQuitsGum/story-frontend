@@ -38,7 +38,12 @@ function logout() {
       <v-toolbar-title class="title"> DreamCraft </v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn class="mx-2" :to="{ name: 'home' }"> Stories </v-btn>
-      <v-btn class="mx-2" :to="{ name: 'register' }"> Register </v-btn>
+      <v-btn v-if="!user" class="mx-2" :to="{ name: 'register' }">
+        Register
+      </v-btn>
+      <v-btn v-if="user" class="mx-2" :to="{ name: 'overview' }">
+        Dashboard
+      </v-btn>
       <v-btn v-if="!user" class="mx-2" :to="{ name: 'login' }"> Login </v-btn>
       <v-btn v-if="user" @click="logout">Logout</v-btn>
       <v-menu v-if="user !== null" min-width="200px" rounded>

@@ -33,6 +33,10 @@ const router = createRouter({
       children: [
         {
           path: "",
+          redirect: "overview",
+        },
+        {
+          path: "overview",
           name: "overview",
           component: Overview,
         },
