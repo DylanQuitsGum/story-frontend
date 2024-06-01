@@ -8,7 +8,7 @@
     </li>
   </ul>
 
-  <v-btn color="accent" large @click.stop="addNew">Add New</v-btn>   
+  <v-btn color="accent" large @click.stop="addNew(character.id)">Add New</v-btn>   
   <CharacterForm :visible="showCharacterForm" @close="showCharacterForm=false" persistent />
 </template>
 
@@ -53,7 +53,7 @@ export default {
   addNew: function (event){
     this.showCharacterForm = true;
   },
-  edit: function (event){
+  edit: function (event, id){
     this.showCharacterForm = true;
   }
  }
