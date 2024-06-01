@@ -1,6 +1,22 @@
+<template>
+  <ul>
+    <li v-for="(character, index) in characters" :key="index">
+      <p>
+        {{ character.firstName }}
+        <v-btn color="accent" large @click.stop="edit">Edit</v-btn>   
+      </p>
+    </li>
+  </ul>
+
+  <v-btn color="accent" large @click.stop="addNew">Add New</v-btn>   
+  <CharacterForm :visible="showCharacterForm" @close="showCharacterForm=false" persistent />
+</template>
+
 <script>
-import CharacterServices from "../../services/CharacterServices";
+import CharacterServices from "@services/CharacterServices";
 import { onMounted, ref } from "vue";
+import CharacterForm from '@components/CharacterDialog.vue'
+
 export default {
   setup() {
     const characters = ref([]);
@@ -25,16 +41,21 @@ export default {
       loading,
     };
   },
-};
+ data () {
+   return {
+     showCharacterForm: false
+   }
+ },
+ components: {
+  CharacterForm
+ },
+ methods:{
+  addNew: function (event){
+    this.showCharacterForm = true;
+  },
+  edit: function (event){
+    this.showCharacterForm = true;
+  }
+ }
+}
 </script>
-
-
-<template>
-  <div>
-    <h1>Characters</h1>
-    <div>
-      <pre>{{ characters }}</pre>
-    </div>
-  </div>
-</template>
-
