@@ -3,6 +3,7 @@ import Dashboard from "@views/dashboard/Dashboard.vue";
 import Overview from "@views/dashboard/Overview.vue";
 import Characters from "@views/dashboard/Characters.vue";
 import Stories from "@views/dashboard/Stories.vue";
+import { isAuthenticated } from "./auth";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -26,9 +27,16 @@ const router = createRouter({
       path: "/dashboard",
       name: "dashboard",
       component: Dashboard,
+      meta: {
+        requiresAuth: true,
+      },
       children: [
         {
           path: "",
+          redirect: "overview",
+        },
+        {
+          path: "overview",
           name: "overview",
           component: Overview,
         },
@@ -45,6 +53,21 @@ const router = createRouter({
       ],
     },
   ],
+});
+
+//route guard
+router.beforeEach((to, from, next) => {
+  if (
+    to.matched.some((record) => record.meta.requiresAuth) &&
+    !isAuthenticated()
+  ) {
+    next({
+      path: "/login",
+      // query: { redirect: to.fullPath },
+    });
+  } else {
+    next();
+  }
 });
 
 export default router;

@@ -1,11 +1,11 @@
 import apiClient from "./services";
 
 export default {
-  getUser() {
-    return apiClient.get("users");
+  async getUser() {
+    return await apiClient.get("users");
   },
-  addUser(user) {
-    return apiClient.post("users", user);
+  async addUser(user) {
+    return await apiClient.post("users", user);
   },
   loginUser(user) {
     console.log(user);
@@ -21,6 +21,6 @@ export default {
     });
   },
   logoutUser() {
-    return apiClient.post("logout");
+    localStorage.removeItem("user");
   },
 };

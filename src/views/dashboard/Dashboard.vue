@@ -43,15 +43,4 @@
 </template>
 
 <script>
-import { ref } from "vue";
-
-export default {
-  setup() {
-    const drawer = ref("");
-
-    return {
-      drawer,
-    };
-  },
-};
 </script>
