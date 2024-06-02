@@ -8,7 +8,7 @@
     </li>
   </ul>
 
-  <v-btn color="accent" large @click.stop="addNew(character.id)">Add New</v-btn>   
+  <v-btn color="accent" large @click.stop="addNew">Add New</v-btn>   
   <CharacterForm :visible="showCharacterForm" @close="showCharacterForm=false" persistent />
 </template>
 
