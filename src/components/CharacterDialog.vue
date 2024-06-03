@@ -1,22 +1,33 @@
 <template>
     <v-dialog v-model="show" max-width="500px" persistent="true">
-      <v-card>
 
-        <template v-slot:title>
-            <span class="font-weight-black">Build a Character</span>
-        </template>
+      <v-text-field v-model="firstName"
+                    hint="Enter a first name"
+                    label="First Name"
+                    type="input"
+      ></v-text-field>
 
-        <v-card-actions>
-          <v-btn color="primary" flat @click.stop="show=false">Close</v-btn>
-          <v-btn color="primary" flat @click.stop="show=false">Cancel</v-btn>
-        </v-card-actions>
-      </v-card>
+      <v-text-field v-model="lastName"
+                    hint="Enter a last name"
+                    label="Last Name"
+                    type="input"
+      ></v-text-field>
+
+      <v-btn color="primary" flat @click.stop="save">Close</v-btn>
+      <v-btn color="primary" flat @click.stop="cancel">Cancel</v-btn>
     </v-dialog>
     </template>
     
     <script>
+    import CharacterServices from "@services/CharacterServices";
+    import { onMounted, ref } from "vue";
+
     export default {
-      props: ['visible'],
+      data: () => ({
+        firstName: null,
+        lastName: null,
+      }),
+      props: ['visible', 'character'],
       computed: {
         show: {
           get () {
@@ -29,8 +40,18 @@
           }
         }
       },
-      method: {
-        
+      methods: {
+        cancel: function (event){
+          this.show=false;
+        },
+        save: function (event){
+          if(this.character == undefined){
+            
+          }else{
+            
+          }
+          this.show=false;
+        }
       }
     }
     </script>
