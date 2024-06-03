@@ -1,6 +1,6 @@
 <style scoped>
-.layout {
-  height: 100vh;
+.main {
+  background: #e6fee4;
 }
 </style>
 
@@ -32,7 +32,7 @@
           </v-list>
         </v-navigation-drawer>
 
-        <v-main>
+        <v-main class="main">
           <v-container>
             <router-view></router-view>
           </v-container>

@@ -3,6 +3,21 @@
 .container {
   max-width: 900px;
 }
+
+.sheet {
+  background: transparent;
+}
+
+.fixed-btn {
+  float: right;
+  bottom: 20px;
+  right: 40px;
+  width: 220px;
+  font-weight: bold;
+  color: white;
+  background-image: linear-gradient(160deg, #00e9a3 0%, #8ad4b8 100%);
+  z-index: 1000;
+}
 </style>
 <script>
 import LanguageServices from "../../services/LanguageServices";
@@ -104,12 +119,11 @@ export default {
       <section>
         <h2>Select a Language</h2>
 
-        <v-sheet class="mx-auto" max-width="800">
-          <v-slide-group>
+        <v-sheet class="sheet mx-auto" max-width="800">
+          <v-slide-group center-active show-arrows>
             <v-slide-group-item v-for="(item, index) in languages" :key="index">
               <v-card
                 :class="['ma-4']"
-                color="grey-lighten-1"
                 height="150"
                 width="130"
                 @click="toggle"
@@ -131,12 +145,11 @@ export default {
       <section>
         <h2>Country</h2>
 
-        <v-sheet class="mx-auto" max-width="800">
-          <v-slide-group>
+        <v-sheet class="sheet mx-auto" max-width="800">
+          <v-slide-group center-active show-arrows>
             <v-slide-group-item v-for="(item, index) in countries" :key="index">
               <v-card
                 :class="['ma-4']"
-                color="grey-lighten-1"
                 height="150"
                 width="130"
                 @click="toggle"
@@ -158,17 +171,18 @@ export default {
       <section>
         <h2>Select a Genre</h2>
 
-        <v-sheet class="mx-auto" max-width="800">
-          <v-slide-group>
+        <v-sheet class="sheet mx-auto" max-width="800">
+          <v-slide-group center-active show-arrows>
             <v-slide-group-item v-for="(item, index) in genres" :key="index">
               <v-card
                 :class="['ma-4']"
-                color="grey-lighten-1"
                 height="150"
                 width="130"
                 @click="toggle"
               >
-                <div class="d-flex fill-height align-center justify-center">
+                <div
+                  class="d-flex fill-height align-center justify-center text-center"
+                >
                   <v-scale-transition>
                     {{ item.genre }}
                   </v-scale-transition>
@@ -185,17 +199,18 @@ export default {
       <section>
         <h2>Theme</h2>
 
-        <v-sheet class="mx-auto" max-width="800">
-          <v-slide-group>
+        <v-sheet class="sheet mx-auto" max-width="800">
+          <v-slide-group center-active show-arrows>
             <v-slide-group-item v-for="(item, index) in themes" :key="index">
               <v-card
                 :class="['ma-4']"
-                color="grey-lighten-1"
                 height="150"
                 width="130"
                 @click="toggle"
               >
-                <div class="d-flex fill-height align-center justify-center">
+                <div
+                  class="d-flex fill-height align-center justify-center text-center"
+                >
                   <v-scale-transition>
                     {{ item.theme }}
                   </v-scale-transition>
@@ -208,6 +223,10 @@ export default {
 
       <br />
       <br />
+
+      <div>
+        <v-btn class="fixed-btn">Create</v-btn>
+      </div>
     </v-container>
   </div>
 </template>
