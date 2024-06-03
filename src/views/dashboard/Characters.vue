@@ -1,6 +1,8 @@
 <template>
+  <meta name="user-id" content="{{ Auth::user()->id }}">
+  <p>{{ currentUserId }}</p>
   <ul>
-    <li v-for="(character, index) in characters" :key="index">
+    <li v-for="(character) in characters" :key="character.characterId">
       <p>
         {{ character.firstName }}
         <v-btn color="accent" large @click.stop="edit">Edit</v-btn>   
@@ -9,7 +11,7 @@
   </ul>
 
   <v-btn color="accent" large @click.stop="addNew">Add New</v-btn>   
-  <CharacterForm :visible="showCharacterForm" @close="showCharacterForm=false" persistent />
+  <CharacterForm :visible="showCharacterForm" @close="closeDialog" persistent />
 </template>
 
 <script>
@@ -18,6 +20,12 @@ import { onMounted, ref } from "vue";
 import CharacterForm from '@components/CharacterDialog.vue'
 
 export default {
+  data () {
+    return{
+      componentKey: 0,
+      currentUserId: 1
+    }
+  },
   setup() {
     const characters = ref([]);
     const loading = ref(true);
@@ -43,7 +51,8 @@ export default {
   },
  data () {
    return {
-     showCharacterForm: false
+     showCharacterForm: false,
+     currentCharacterId: null,
    }
  },
  components: {
@@ -54,8 +63,12 @@ export default {
     this.showCharacterForm = true;
   },
   edit: function (event, id){
+    this.currentCharacterId = id;
     this.showCharacterForm = true;
-  }
+  },
+  closeDialog: function(event){
+    this.showCharacterForm = false;
+  },
  }
 }
 </script>

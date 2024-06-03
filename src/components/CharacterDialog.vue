@@ -26,8 +26,9 @@
       data: () => ({
         firstName: null,
         lastName: null,
+        userId: 1,
       }),
-      props: ['visible', 'character'],
+      props: ['visible', 'characterId'],
       computed: {
         show: {
           get () {
@@ -45,11 +46,12 @@
           this.show=false;
         },
         save: function (event){
-          if(this.character == undefined){
-            
-          }else{
-            
-          }
+          const character = {
+            firstName: this.firstName,
+            lastName: this.lastName,
+            userId: this.userId,
+          };
+          CharacterServices.addCharacter(character);
           this.show=false;
         }
       }
