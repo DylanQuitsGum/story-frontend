@@ -1,34 +1,23 @@
 <template>
-  <meta name="user-id" content="{{ Auth::user()->id }}">
-  <p>{{ currentUserId }}</p>
-  <ul>
-    <li v-for="(character) in characters" :key="character.characterId">
-      <p>
-        {{ character.firstName }}
-        <v-btn color="accent" large @click.stop="edit">Edit</v-btn>   
-      </p>
-    </li>
-  </ul>
+  <div v-for="character in characters" :key="character">
+    <p @click="edit($event, character)">
+      {{ character.firstName }}
+    </p>
+  </div>
 
-  <v-btn color="accent" large @click.stop="addNew">Add New</v-btn>   
-  <CharacterForm :visible="showCharacterForm" @close="closeDialog" persistent />
+  <v-btn color="accent" large @click.stop="addNew">Add New</v-btn> 
+  <CharacterForm :visible="showCharacterForm" :currentCharacter="currentCharacter" @close="closeDialog" persistent />
 </template>
 
 <script>
-import CharacterServices from "@services/CharacterServices";
-import { onMounted, ref } from "vue";
+import { onMounted, ref } from 'vue'
 import CharacterForm from '@components/CharacterDialog.vue'
+import CharacterServices from '@services/CharacterServices'
 
 export default {
-  data () {
-    return{
-      componentKey: 0,
-      currentUserId: 1
-    }
-  },
-  setup() {
-    const characters = ref([]);
+  setup(props, { expose }) {
     const loading = ref(true);
+    const characters = ref([]);
 
     const fetchData = async () => {
       try {
@@ -44,31 +33,38 @@ export default {
 
     onMounted(fetchData);
 
+    expose
+    (
+      {
+        loading,
+        fetchData,
+      }
+    )
+
     return {
-      characters,
-      loading,
-    };
+      characters
+    }
   },
- data () {
+  data () {
    return {
      showCharacterForm: false,
-     currentCharacterId: null,
+     currentCharacterId: null
    }
  },
- components: {
-  CharacterForm
- },
- methods:{
-  addNew: function (event){
-    this.showCharacterForm = true;
+  methods: {
+    addNew: function (event) {
+      this.showCharacterForm = true;
+    },
+    edit: function (event, character){
+      this.currentCharacter = character.id;
+      this.showCharacterForm = true;
+    },
+    closeDialog: function (event){
+      this.showCharacterForm = false;
+    }
   },
-  edit: function (event, id){
-    this.currentCharacterId = id;
-    this.showCharacterForm = true;
-  },
-  closeDialog: function(event){
-    this.showCharacterForm = false;
-  },
- }
+  components:{
+    CharacterForm
+  }
 }
 </script>

@@ -28,7 +28,7 @@
         lastName: null,
         userId: 1,
       }),
-      props: ['visible', 'characterId'],
+      props: ['visible', 'currentCharacter'],
       computed: {
         show: {
           get () {
