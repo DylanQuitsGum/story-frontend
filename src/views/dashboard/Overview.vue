@@ -66,30 +66,30 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
     watch(selectedLanguage, (newValue, oldValue) => {
       selectedLanguage.value = newValue;
-      buildPreample();
+      buildPreamble();
     });
 
     watch(selectedCountry, (newValue, oldValue) => {
       selectedCountry.value = newValue;
-      buildPreample();
+      buildPreamble();
     });
 
     watch(selectedGenre, (newValue, oldValue) => {
       selectedGenre.value = newValue;
-      buildPreample();
+      buildPreamble();
     });
 
     watch(selectedTheme, (newValue, oldValue) => {
       selectedTheme.value = newValue;
-      buildPreample();
+      buildPreamble();
     });
 
     watch(selectedPageCount, (newValue, oldValue) => {
       selectedPageCount.value = newValue;
-      buildPreample();
+      buildPreamble();
     });
 
-    function buildPreample() {
+    function buildPreamble() {
       const preambleNew = preambleTemplate
         .replace("{{language}}", selectedLanguage.value)
         .replace("{{country}}", selectedCountry.value)
@@ -185,11 +185,19 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
     };
 
-    const save = async () => {};
+    const save = async () => {
+      try {
+        const result = await StoryServices.saveStory(preampleObj);
+
+        console.log(result);
+      } catch (err) {
+        console.error(`Error: ${err}`);
+      }
+    };
 
     onMounted(() => {
       fetchData();
-      buildPreample();
+      buildPreamble();
     });
 
     return {
@@ -331,6 +339,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
             class="fixed-btn float-right"
             :class="{ grey: isLoading }"
             :readonly="isLoading"
+            @click="save"
             >Save</v-btn
           >
         </div>
