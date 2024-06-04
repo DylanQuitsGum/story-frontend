@@ -47,9 +47,19 @@ const router = createRouter({
         },
         {
           path: "characters",
-          name: "characters",
+          name: "characters-list",
           component: Characters,
         },
+        {
+          path: "characters/:id",
+          name: "character-details",
+          component: () => import("./views/dashboard/EditCharacter.vue"),
+        },
+        {
+          path: "addCharacter",
+          name: "new-character-details",
+          component: () => import("./views/dashboard/AddCharacter.vue"),
+        }
       ],
     },
   ],
