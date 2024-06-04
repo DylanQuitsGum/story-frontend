@@ -8,14 +8,18 @@ export default {
 
     const fetchStories = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
-      const res = StoryServices.getStories(user.userId);
+      const res = await StoryServices.getStories(user.userId);
 
       console.log(res);
+
+      const { data } = res;
+
+      stories.value = data;
     };
 
-    onMounted(() => {
+    onMounted(async () => {
       console.log("mount");
-      fetchStories();
+      await fetchStories();
     });
 
     return {

@@ -313,7 +313,12 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
           </section>
 
           <div>
-            <v-btn class="fixed-btn" @click="create">
+            <v-btn
+              class="fixed-btn"
+              :class="{ grey: isLoading }"
+              :readonly="isLoading"
+              @click="create"
+            >
               <span class="px-2">CRAFT</span>
               <img
                 class="pr-1"
