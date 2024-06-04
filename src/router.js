@@ -47,7 +47,7 @@ const router = createRouter({
         },
         {
           path: "characters",
-          name: "characters",
+          name: "characters-list",
           component: Characters,
         },
         {
