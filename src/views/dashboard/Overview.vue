@@ -9,14 +9,15 @@
 }
 
 .fixed-btn {
-  float: right;
-  bottom: 20px;
-  right: 40px;
-  width: 220px;
+  width: 200px;
   font-weight: bold;
   color: white;
   background-image: linear-gradient(160deg, #00e9a3 0%, #8ad4b8 100%);
   z-index: 1000;
+}
+
+.load {
+  height: 360px;
 }
 </style>
 <script>
@@ -24,16 +25,75 @@ import LanguageServices from "../../services/LanguageServices";
 import GenreServices from "../../services/GenreServices";
 import ThemeServices from "../../services/ThemeServices";
 import CountryServices from "../../services/CountryServices";
+import StoryServices from "../../services/StoryServices";
+import { useRouter } from "vue-router";
+import { onMounted, ref, watch } from "vue";
 
-import { onMounted, ref } from "vue";
+const router = useRouter();
+
 export default {
   setup() {
-    const selectedLanguage = ref("");
+    const selectedLanguage = ref("English");
+    const selectedCountry = ref("United States");
+    const selectedGenre = ref("Adventure");
+    const selectedTheme = ref("Friendship");
+    const selectedPageCount = ref(1);
+    const selectedCharacters = ref([]);
+    const isLoading = ref(false);
+
     const languages = ref([]);
     const genres = ref([]);
     const themes = ref([]);
     const countries = ref([]);
-    const loading = ref(true);
+    const preamble = ref("");
+    const storyOutput = ref("");
+    const storyTitle = ref("");
+
+    const preambleTemplate = `
+Language: Should be written in {{language}}.
+Setting: The story takes place in a {{country}}.
+Genre: The genre of the story should be {{genre}}.
+Theme: The story should be about {{theme}}.
+Length: The story should be approximately {{pages}} pages long.
+Target Audience: This story is aimed at preschoolers aged 3-5.
+Tone: The tone should be gentle and heartwarming, with moments of humor.
+`;
+
+    watch(selectedLanguage, (newValue, oldValue) => {
+      selectedLanguage.value = newValue;
+      buildPreample();
+    });
+
+    watch(selectedCountry, (newValue, oldValue) => {
+      selectedCountry.value = newValue;
+      buildPreample();
+    });
+
+    watch(selectedGenre, (newValue, oldValue) => {
+      selectedGenre.value = newValue;
+      buildPreample();
+    });
+
+    watch(selectedTheme, (newValue, oldValue) => {
+      selectedTheme.value = newValue;
+      buildPreample();
+    });
+
+    watch(selectedPageCount, (newValue, oldValue) => {
+      selectedPageCount.value = newValue;
+      buildPreample();
+    });
+
+    function buildPreample() {
+      const preambleNew = preambleTemplate
+        .replace("{{language}}", selectedLanguage.value)
+        .replace("{{country}}", selectedCountry.value)
+        .replace("{{genre}}", selectedGenre.value)
+        .replace("{{theme}}", selectedTheme.value)
+        .replace("{{pages}}", selectedPageCount.value);
+
+      preamble.value = preambleNew;
+    }
 
     const fetchData = async () => {
       await fetchLanguages();
@@ -46,8 +106,10 @@ export default {
       try {
         const res = await LanguageServices.getLanguages();
         const { data, status } = res;
+
         if (status == 200) {
           languages.value = data;
+          console.log(languages.value);
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -72,7 +134,6 @@ export default {
         const res = await ThemeServices.getThemes();
         const { data, status } = res;
 
-        console.log(data);
         if (status == 200) {
           themes.value = data;
         }
@@ -86,7 +147,6 @@ export default {
         const res = await CountryServices.getCountries();
         const { data, status } = res;
 
-        console.log(data);
         if (status == 200) {
           countries.value = data;
         }
@@ -95,17 +155,51 @@ export default {
       }
     };
 
-    const toggle = () => {};
+    const create = async () => {
+      isLoading.value = true;
+      const preampleObj = {
+        preamble: preamble.value,
+        prompt: "Write me a children's story",
+      };
 
-    onMounted(fetchData);
+      try {
+        const result = await StoryServices.createStory(preampleObj);
+        const { status, data } = result;
+
+        console.log(result);
+
+        if (status == 201) {
+          storyOutput.value = data.response.story;
+          storyTitle.value = data.response.title;
+          isLoading.value = false;
+        }
+      } catch (err) {
+        console.error(`Error: ${err}`);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    onMounted(() => {
+      fetchData();
+      buildPreample();
+    });
 
     return {
       languages,
       genres,
       themes,
       countries,
-      loading,
-      toggle,
+      selectedLanguage,
+      selectedCountry,
+      selectedGenre,
+      selectedTheme,
+      selectedCharacters,
+      selectedPageCount,
+      storyOutput,
+      storyTitle,
+      isLoading,
+      create,
     };
   },
 };
@@ -116,116 +210,117 @@ export default {
   <div>
     <h1>Craft your story</h1>
     <v-container class="container">
-      <section>
-        <h2>Select a Language</h2>
+      <div class="d-flex ga-4">
+        <div>
+          <h3>Build</h3>
+          <br />
+          <section>
+            <v-select
+              v-model="selectedLanguage"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Languages"
+              :items="languages.map((l) => l.language)"
+            ></v-select>
+          </section>
 
-        <v-sheet class="sheet mx-auto" max-width="800">
-          <v-slide-group center-active show-arrows>
-            <v-slide-group-item v-for="(item, index) in languages" :key="index">
-              <v-card
-                :class="['ma-4']"
-                height="150"
-                width="130"
-                @click="toggle"
-              >
-                <div class="d-flex fill-height align-center justify-center">
-                  <v-scale-transition>
-                    {{ item.language }}
-                  </v-scale-transition>
-                </div>
-              </v-card>
-            </v-slide-group-item>
-          </v-slide-group>
-        </v-sheet>
-      </section>
+          <section>
+            <v-select
+              v-model="selectedCountry"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Country"
+              :items="countries.map((l) => l.country)"
+            ></v-select>
+          </section>
 
-      <br />
-      <br />
+          <section>
+            <v-select
+              v-model="selectedGenre"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Genre"
+              :items="genres.map((l) => l.genre)"
+            ></v-select>
+          </section>
 
-      <section>
-        <h2>Country</h2>
+          <section>
+            <v-select
+              v-model="selectedTheme"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Theme"
+              :items="themes.map((l) => l.theme)"
+            ></v-select>
+          </section>
 
-        <v-sheet class="sheet mx-auto" max-width="800">
-          <v-slide-group center-active show-arrows>
-            <v-slide-group-item v-for="(item, index) in countries" :key="index">
-              <v-card
-                :class="['ma-4']"
-                height="150"
-                width="130"
-                @click="toggle"
-              >
-                <div class="d-flex fill-height align-center justify-center">
-                  <v-scale-transition>
-                    {{ item.country }}
-                  </v-scale-transition>
-                </div>
-              </v-card>
-            </v-slide-group-item>
-          </v-slide-group>
-        </v-sheet>
-      </section>
+          <section>
+            <v-select
+              v-model="selectedPageCount"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Page Count"
+              :items="[1, 2, 3, 4]"
+            ></v-select>
+          </section>
 
-      <br />
-      <br />
+          <section>
+            <v-select
+              v-model="selectedCharacters"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Characters"
+              :items="['bob', 'joe']"
+              multiple
+            ></v-select>
+          </section>
 
-      <section>
-        <h2>Select a Genre</h2>
+          <div>
+            <v-btn class="fixed-btn" @click="create">
+              <span class="px-2">CRAFT</span>
+              <img
+                class="pr-1"
+                src="./../../assets/icons/magic-wand.png"
+                alt="hand settings"
+                width="20"
+            /></v-btn>
+          </div>
+        </div>
+        <div class="flex-grow-1">
+          <h3>Output</h3>
+          <br />
 
-        <v-sheet class="sheet mx-auto" max-width="800">
-          <v-slide-group center-active show-arrows>
-            <v-slide-group-item v-for="(item, index) in genres" :key="index">
-              <v-card
-                :class="['ma-4']"
-                height="150"
-                width="130"
-                @click="toggle"
-              >
-                <div
-                  class="d-flex fill-height align-center justify-center text-center"
-                >
-                  <v-scale-transition>
-                    {{ item.genre }}
-                  </v-scale-transition>
-                </div>
-              </v-card>
-            </v-slide-group-item>
-          </v-slide-group>
-        </v-sheet>
-      </section>
+          <div v-if="isLoading" class="load d-flex justify-center align-center">
+            <v-progress-circular
+              indeterminate
+              color="green"
+              :size="100"
+              :width="12"
+            ></v-progress-circular>
+          </div>
 
-      <br />
-      <br />
-
-      <section>
-        <h2>Theme</h2>
-
-        <v-sheet class="sheet mx-auto" max-width="800">
-          <v-slide-group center-active show-arrows>
-            <v-slide-group-item v-for="(item, index) in themes" :key="index">
-              <v-card
-                :class="['ma-4']"
-                height="150"
-                width="130"
-                @click="toggle"
-              >
-                <div
-                  class="d-flex fill-height align-center justify-center text-center"
-                >
-                  <v-scale-transition>
-                    {{ item.theme }}
-                  </v-scale-transition>
-                </div>
-              </v-card>
-            </v-slide-group-item>
-          </v-slide-group>
-        </v-sheet>
-      </section>
-
-      <br />
-      <br />
-
-      <div>
-        <v-btn class="fixed-btn">Create</v-btn>
+          <div v-if="!isLoading">
+            <v-text-field
+              v-model="storyTitle"
+              label="Title"
+              variant="outlined"
+            ></v-text-field>
+            <v-textarea
+              v-model="storyOutput"
+              :rows="10"
+              label="Story"
+              variant="outlined"
+            >
+            </v-textarea>
+          </div>
+          <v-btn class="fixed-btn float-right">Save</v-btn>
+        </div>
       </div>
     </v-container>
   </div>
