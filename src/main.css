@@ -38,3 +38,7 @@ li {
 .error {
   color: red;
 }
+
+a {
+  color: rgb(78, 129, 204);
+}

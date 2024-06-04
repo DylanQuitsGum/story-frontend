@@ -2,9 +2,9 @@ import axios from "axios";
 
 var baseurl = "";
 if (process.env.NODE_ENV === "development") {
-  baseurl = "http://localhost:3201/storyapi/";
+  baseurl = "http://localhost:3201/api/";
 } else {
-  baseurl = "http://107.23.63.118:3201/storyapi/";
+  baseurl = "http://107.23.63.118:3201/api/";
 }
 
 const apiClient = axios.create({
@@ -29,7 +29,6 @@ apiClient.interceptors.request.use(
       }
     }
 
-    console.log("request header", config.headers);
     return config;
   },
   (error) => {
