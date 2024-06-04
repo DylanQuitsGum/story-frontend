@@ -51,7 +51,7 @@ const router = createRouter({
           component: Characters,
         },
         {
-          path: "editCharacters",
+          path: "characters/:id",
           name: "character-details",
           component: () => import("./views/dashboard/EditCharacter.vue"),
         },
