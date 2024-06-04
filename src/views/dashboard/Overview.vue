@@ -189,10 +189,13 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       if (storyOutput.value == "" || storyTitle.value == "") return;
 
       try {
+        const user = JSON.parse(localStorage.getItem("user"));
+
         const result = await StoryServices.saveStory({
           story: storyOutput.value,
           conversationId: storyConversationId.value,
           title: storyTitle.value,
+          userId: user.userId,
         });
 
         const { status } = result;
