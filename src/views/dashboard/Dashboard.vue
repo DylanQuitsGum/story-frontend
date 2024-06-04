@@ -1,15 +1,17 @@
 <style scoped>
 .main {
-  background: #e6fee4;
+  color: rgb(50, 50, 50);
+}
+.nav {
+  background: #f6ffde;
 }
 </style>
 
 <template>
-  <div>
+  <div class="main">
     <v-app>
       <v-layout class="border">
-        <h1>Test</h1>
-        <v-navigation-drawer permanent>
+        <v-navigation-drawer class="nav" permanent>
           <v-list>
             <v-list-item link :to="{ path: '/dashboard' }" key="1">
               <template v-slot:prepend>

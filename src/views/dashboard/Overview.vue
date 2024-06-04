@@ -19,6 +19,10 @@
 .load {
   height: 360px;
 }
+
+.grey {
+  background: gray;
+}
 </style>
 <script>
 import LanguageServices from "../../services/LanguageServices";
@@ -40,6 +44,7 @@ export default {
     const selectedPageCount = ref(1);
     const selectedCharacters = ref([]);
     const isLoading = ref(false);
+    const isSaving = ref(false);
 
     const languages = ref([]);
     const genres = ref([]);
@@ -180,6 +185,8 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
     };
 
+    const save = async () => {};
+
     onMounted(() => {
       fetchData();
       buildPreample();
@@ -199,6 +206,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       storyOutput,
       storyTitle,
       isLoading,
+      isSaving,
       create,
     };
   },
@@ -319,7 +327,12 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
             >
             </v-textarea>
           </div>
-          <v-btn class="fixed-btn float-right">Save</v-btn>
+          <v-btn
+            class="fixed-btn float-right"
+            :class="{ grey: isLoading }"
+            :readonly="isLoading"
+            >Save</v-btn
+          >
         </div>
       </div>
     </v-container>
