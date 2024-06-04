@@ -21,7 +21,7 @@
           </v-data-table>
 
           <v-card-actions v-if="characters.length > 0">
-            <v-btn small color="error" @click="deleteAllCharacters">
+            <v-btn small color="error" @click="removeAllCharacters">
             Remove All
             </v-btn>
           </v-card-actions>
