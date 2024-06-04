@@ -33,6 +33,8 @@
 
 <script>
 import CharacterServices from "@services/CharacterServices";
+import UserServices from "@services/UserServices";
+
 export default {
   name: "characters-list",
   data() {
@@ -47,6 +49,9 @@ export default {
     };
   },
   methods: {
+    addCharacter(){
+      this.$router.push({ name: "new-character-details" });
+    },
     retrieveCharacters() {
       CharacterServices.getAll()
         .then((response) => {

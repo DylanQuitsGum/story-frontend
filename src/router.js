@@ -50,6 +50,16 @@ const router = createRouter({
           name: "characters",
           component: Characters,
         },
+        {
+          path: "editCharacters",
+          name: "character-details",
+          component: () => import("./views/dashboard/EditCharacter.vue"),
+        },
+        {
+          path: "addCharacter",
+          name: "new-character-details",
+          component: () => import("./views/dashboard/AddCharacter.vue"),
+        }
       ],
     },
   ],
