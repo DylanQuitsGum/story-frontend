@@ -1,70 +1,102 @@
 <template>
-  <div v-for="character in characters" :key="character">
-    <p @click="edit($event, character)">
-      {{ character.firstName }}
-    </p>
-  </div>
+  <v-row align="center" class="list px-3 mx-auto">
 
-  <v-btn color="accent" large @click.stop="addNew">Add New</v-btn> 
-  <CharacterForm :visible="showCharacterForm" :currentCharacter="currentCharacter" @close="closeDialog" persistent />
+    <v-col cols="12" md="4">
+      <v-btn small @click="addCharacter">
+        Add Character
+      </v-btn>
+    </v-col>
+
+    <v-col cols="12" sm="12">
+      <v-card class="mx-auto" tile>
+        <v-card-title>Characters</v-card-title>
+          <v-data-table :headers="headers"
+                        :items="characters"
+                        disable-pagination
+                        :hide-default-footer="true">
+            <template v-slot:[`item.actions`]="{item}">
+              <v-icon small class="mr-2" @click="editCharacter(item.id)">mdi-pencil</v-icon>
+              <v-icon small class="mr-2" @click="deleteCharacter(item.id)">mdi-delete</v-icon>
+            </template>
+          </v-data-table>
+
+          <v-card-actions v-if="characters.length > 0">
+            <v-btn small color="error" @click="deleteAllCharacters">
+            Remove All
+            </v-btn>
+          </v-card-actions>
+      </v-card>
+    </v-col>
+
+  </v-row>
 </template>
 
 <script>
-import { onMounted, ref } from 'vue'
-import CharacterForm from '@components/CharacterDialog.vue'
-import CharacterServices from '@services/CharacterServices'
-
+import CharacterServices from "@services/CharacterServices";
 export default {
-  setup(props, { expose }) {
-    const loading = ref(true);
-    const characters = ref([]);
-
-    const fetchData = async () => {
-      try {
-        const res = await CharacterServices.getCharacters();
-        const { data, status } = res;
-        characters.value = data;
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    onMounted(fetchData);
-
-    expose
-    (
-      {
-        loading,
-        fetchData,
-      }
-    )
-
+  name: "characters-list",
+  data() {
     return {
-      characters
-    }
+      characters: [],
+      title: "",
+      headers: [
+        { text: "First Name", align: "start", sortable: false, value: "firstName" },
+        { text: "Last Name", value: "lastName", sortable: false },
+        { text: "Actions", value: "actions", sortable: false },
+      ],
+    };
   },
-  data () {
-   return {
-     showCharacterForm: false,
-     currentCharacterId: null
-   }
- },
   methods: {
-    addNew: function (event) {
-      this.showCharacterForm = true;
+    retrieveCharacters() {
+      CharacterServices.getAll()
+        .then((response) => {
+          this.characters = response.data.map(this.getDisplayCharacter);
+          console.log(response.data);
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     },
-    edit: function (event, character){
-      this.currentCharacter = character.id;
-      this.showCharacterForm = true;
+
+    refreshList() {
+      this.retrieveCharacters();
     },
-    closeDialog: function (event){
-      this.showCharacterForm = false;
-    }
+
+    removeAllCharacters() {
+      CharacterServices.deleteAll()
+        .then((response) => {
+          console.log(response.data);
+          this.refreshList();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+
+    editCharacter(id) {
+      this.$router.push({ name: "character-details", params: { id: id } });
+    },
+
+    deleteCharacter(id) {
+      CharacterServices.delete(id)
+        .then(() => {
+          this.refreshList();
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+
+    getDisplayCharacter(character) {
+      return {
+        id: character.id,
+        firstName: character.firstName,
+        lastName: character.lastName,
+      };
+    },
   },
-  components:{
-    CharacterForm
-  }
-}
+  mounted() {
+    this.retrieveCharacters();
+  },
+};
 </script>

@@ -26,9 +26,18 @@
       data: () => ({
         firstName: null,
         lastName: null,
-        userId: 1,
       }),
-      props: ['visible', 'characterId'],
+      props: ['visible', 'character'],
+      setup(props){
+        onMounted(() => {
+          console.log("in onMounted")
+          if(props.character != undefined){
+            console.log(character);
+            firstName = props.character.firstName;
+            lastName = props.character.lastName;
+          }
+        });
+      },
       computed: {
         show: {
           get () {
