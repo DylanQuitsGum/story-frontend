@@ -30,10 +30,7 @@ import GenreServices from "../../services/GenreServices";
 import ThemeServices from "../../services/ThemeServices";
 import CountryServices from "../../services/CountryServices";
 import StoryServices from "../../services/StoryServices";
-import { useRouter } from "vue-router";
 import { onMounted, ref, watch } from "vue";
-
-const router = useRouter();
 
 export default {
   setup() {
@@ -51,8 +48,10 @@ export default {
     const themes = ref([]);
     const countries = ref([]);
     const preamble = ref("");
+    const storyConversationId = ref("");
     const storyOutput = ref("");
     const storyTitle = ref("");
+    const saveAlert = ref(false);
 
     const preambleTemplate = `
 Language: Should be written in {{language}}.
@@ -174,8 +173,9 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
         console.log(result);
 
         if (status == 201) {
+          storyConversationId.value = data.response.conversationId;
           storyOutput.value = data.response.story;
-          storyTitle.value = data.response.title;
+          storyTitle.value = data.response.title.replace(/['"]+/g, "");
           isLoading.value = false;
         }
       } catch (err) {
@@ -186,10 +186,20 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
     };
 
     const save = async () => {
-      try {
-        const result = await StoryServices.saveStory(preampleObj);
+      if (storyOutput.value == "" || storyTitle.value == "") return;
 
-        console.log(result);
+      try {
+        const result = await StoryServices.saveStory({
+          story: storyOutput.value,
+          conversationId: storyConversationId.value,
+          title: storyTitle.value,
+        });
+
+        const { status } = result;
+
+        if (status == 201) {
+          saveAlert.value = true;
+        }
       } catch (err) {
         console.error(`Error: ${err}`);
       }
@@ -215,7 +225,9 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       storyTitle,
       isLoading,
       isSaving,
+      saveAlert,
       create,
+      save,
     };
   },
 };
@@ -335,6 +347,18 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
             >
             </v-textarea>
           </div>
+
+          <v-alert
+            class="mb-4"
+            v-model="saveAlert"
+            type="success"
+            variant="outlined"
+            closable
+          >
+            {{ storyTitle }} was saved. You can read it
+            <a href="/dashboard/stories">here</a>
+          </v-alert>
+
           <v-btn
             class="fixed-btn float-right"
             :class="{ grey: isLoading }"

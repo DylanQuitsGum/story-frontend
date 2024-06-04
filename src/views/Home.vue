@@ -103,7 +103,9 @@ footer {
         </p>
         <br />
         <br />
-        <v-btn class="action-btn rounded-xl">Generate Now</v-btn>
+        <v-btn class="action-btn rounded-xl" :to="{ name: 'register' }"
+          >Generate Now</v-btn
+        >
       </v-card>
     </section>
 
