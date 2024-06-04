@@ -68,10 +68,6 @@ async function login() {
     }
   }
 }
-
-function closeSnackBar() {
-  snackbar.value.value = false;
-}
 </script>
 
 

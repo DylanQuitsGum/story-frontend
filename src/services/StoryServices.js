@@ -1,6 +1,9 @@
 import apiClient from "./services";
 
 export default {
+  getStories(userId) {
+    return apiClient.get(`/users/${userId}/stories`);
+  },
   createStory(promptObj) {
     return apiClient.post("/ai", promptObj);
   },
