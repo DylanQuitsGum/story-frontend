@@ -1,3 +1,8 @@
+<style scoped>
+.description {
+  height: 140px;
+}
+</style>
 <script>
 import { ref, onMounted } from "vue";
 import StoryServices from "../../services/StoryServices";
@@ -22,8 +27,16 @@ export default {
       await fetchStories();
     });
 
+    const truncateText = (text, maxLength) => {
+      if (text.length > maxLength) {
+        return text.substring(0, maxLength) + "...";
+      }
+      return text;
+    };
+
     return {
       stories,
+      truncateText,
     };
   },
 };
@@ -32,10 +45,29 @@ export default {
 
 <template>
   <div>
-    <div>Stories</div>
+    <v-container>
+      <v-row>
+        <v-col
+          v-for="(story, index) in stories"
+          :key="index"
+          cols="12"
+          sm="6"
+          md="4"
+        >
+          <v-card height="260px" class="pa-2">
+            <v-card-title>{{ story.title }}</v-card-title>
+            <!-- <v-card-subtitle>{{ story.story }}</v-card-subtitle> -->
+            <v-card-text class="description">{{
+              truncateText(story.text, 150)
+            }}</v-card-text>
 
-    <pre>
-      {{ stories }}
-    </pre>
+            <v-card-actions>
+              <v-btn text="Read"></v-btn>
+              <v-btn text="Edit"></v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
