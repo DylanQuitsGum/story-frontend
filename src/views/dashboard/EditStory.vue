@@ -31,9 +31,11 @@ import ThemeServices from "../../services/ThemeServices";
 import CountryServices from "../../services/CountryServices";
 import StoryServices from "../../services/StoryServices";
 import { onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 export default {
   setup() {
+    const router = useRoute();
     const selectedLanguage = ref("English");
     const selectedCountry = ref("United States");
     const selectedGenre = ref("Adventure");
@@ -42,6 +44,7 @@ export default {
     const selectedCharacters = ref([]);
     const isLoading = ref(false);
     const isSaving = ref(false);
+    const story = ref({});
 
     const languages = ref([]);
     const genres = ref([]);
@@ -52,6 +55,8 @@ export default {
     const storyOutput = ref("");
     const storyTitle = ref("");
     const saveAlert = ref(false);
+
+    const storyId = ref(router.params.id);
 
     const preambleTemplate = `
 Language: Should be written in {{language}}.
@@ -113,7 +118,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
         if (status == 200) {
           languages.value = data;
-          console.log(languages.value);
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -208,8 +212,57 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
     };
 
+    const fetchStory = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const res = await StoryServices.getStoryById(user.userId, storyId.value);
+
+      console.log(res);
+      const { status, data } = res;
+
+      if (status == 200) {
+        story.value = data;
+        storyTitle.value = data.title;
+        storyOutput.value = data.text;
+
+        //check if language exist
+        const languageExist = languages.value.some(
+          (obj) => obj.language == data.language
+        );
+        const countryExist = countries.value.some(
+          (obj) => obj.country == data.country
+        );
+        const genreExist = genres.value.some((obj) => obj.genre == data.genre);
+        const themeExist = themes.value.some((obj) => obj.theme == data.theme);
+
+        if (!languageExist) {
+          languages.value.push({
+            language: data.language,
+          });
+        }
+
+        if (!countryExist) {
+          countries.value.push({
+            country: data.country,
+          });
+        }
+
+        if (!genreExist) {
+          genres.value.push({
+            genre: data.genre,
+          });
+        }
+
+        if (!themeExist) {
+          themes.value.push({
+            theme: data.theme,
+          });
+        }
+      }
+    };
+
     onMounted(() => {
       fetchData();
+      fetchStory();
       buildPreamble();
     });
 
@@ -319,7 +372,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
               :readonly="isLoading"
               @click="create"
             >
-              <span class="px-2">CRAFT</span>
+              <span class="px-2">Update</span>
               <img
                 class="pr-1"
                 src="./../../assets/icons/magic-wand.png"

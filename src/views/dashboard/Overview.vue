@@ -196,6 +196,10 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
           conversationId: storyConversationId.value,
           title: storyTitle.value,
           userId: user.userId,
+          language: selectedLanguage.value,
+          country: selectedCountry.value,
+          genre: selectedGenre.value,
+          theme: selectedTheme.value,
         });
 
         const { status } = result;

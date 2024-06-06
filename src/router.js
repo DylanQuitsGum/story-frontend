@@ -62,6 +62,11 @@ const router = createRouter({
           component: () => import("./views/dashboard/EditStory.vue"),
         },
         {
+          path: "settings",
+          name: "settings",
+          component: () => import("./views/dashboard/Settings.vue"),
+        },
+        {
           path: "characters/:id",
           name: "character-details",
           component: () => import("./views/dashboard/EditCharacter.vue"),
