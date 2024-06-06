@@ -47,10 +47,21 @@ export default {
       return;
     };
 
+    const editStory = (story) => {
+      if (story) {
+        router.push({
+          path: `/dashboard/edit/${story.id}`,
+        });
+      }
+
+      return;
+    };
+
     return {
       stories,
       truncateText,
       readStory,
+      editStory,
     };
   },
 };
@@ -77,7 +88,7 @@ export default {
 
             <v-card-actions>
               <v-btn text="Read" @click="readStory(story)"></v-btn>
-              <v-btn text="Edit"></v-btn>
+              <v-btn text="Edit" @click="editStory(story)"></v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
