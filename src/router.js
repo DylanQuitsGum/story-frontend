@@ -24,6 +24,11 @@ const router = createRouter({
       component: () => import("./views/Register.vue"),
     },
     {
+      path: "/story/:id",
+      name: "story",
+      component: () => import("./views/Story.vue"),
+    },
+    {
       path: "/dashboard",
       name: "dashboard",
       component: Dashboard,
@@ -60,7 +65,7 @@ const router = createRouter({
           path: "addCharacter",
           name: "new-character-details",
           component: () => import("./views/dashboard/AddCharacter.vue"),
-        }
+        },
       ],
     },
   ],

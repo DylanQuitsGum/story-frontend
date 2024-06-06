@@ -11,4 +11,8 @@ export default {
     console.log(storyObj);
     return apiClient.post("/stories", storyObj);
   },
+  getStoryById(userId, storyId) {
+    console.log(`fetch user ${userId} ${storyId}`);
+    return apiClient.get(`/users/${userId}/stories/${storyId}`);
+  },
 };

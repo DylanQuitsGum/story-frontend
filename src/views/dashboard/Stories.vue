@@ -1,14 +1,17 @@
 <style scoped>
 .description {
   height: 140px;
+  overflow: hidden;
 }
 </style>
 <script>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import StoryServices from "../../services/StoryServices";
 
 export default {
   setup() {
+    const router = useRouter();
     const stories = ref([]);
 
     const fetchStories = async () => {
@@ -34,9 +37,20 @@ export default {
       return text;
     };
 
+    const readStory = (story) => {
+      if (story) {
+        router.push({
+          path: `/story/${story.id}`,
+        });
+      }
+
+      return;
+    };
+
     return {
       stories,
       truncateText,
+      readStory,
     };
   },
 };
@@ -62,7 +76,7 @@ export default {
             }}</v-card-text>
 
             <v-card-actions>
-              <v-btn text="Read"></v-btn>
+              <v-btn text="Read" @click="readStory(story)"></v-btn>
               <v-btn text="Edit"></v-btn>
             </v-card-actions>
           </v-card>
