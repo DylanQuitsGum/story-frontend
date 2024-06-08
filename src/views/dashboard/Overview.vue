@@ -38,7 +38,7 @@ export default {
     const selectedCountry = ref("");
     const selectedGenre = ref("Adventure");
     const selectedTheme = ref("Friendship");
-    const selectedPageCount = ref(1);
+    const selectedPageCount = ref(0.5);
     const selectedCharacters = ref([]);
     const isLoading = ref(false);
     const isSaving = ref(false);
@@ -203,6 +203,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
           country: selectedCountry.value,
           genre: selectedGenre.value,
           theme: selectedTheme.value,
+          pageCount: selectedPageCount.value,
         });
 
         const { status } = result;

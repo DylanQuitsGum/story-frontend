@@ -15,4 +15,8 @@ export default {
     console.log(`fetch user ${userId} ${storyId}`);
     return apiClient.get(`/users/${userId}/stories/${storyId}`);
   },
+
+  deleteStory(userId, storyId) {
+    return apiClient.delete(`/users/${userId}/stories/${storyId}`);
+  },
 };

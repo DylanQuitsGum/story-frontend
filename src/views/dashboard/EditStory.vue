@@ -23,6 +23,10 @@
 .grey {
   background: gray;
 }
+
+.delete {
+  color: rgb(255, 110, 110);
+}
 </style>
 <script>
 import LanguageServices from "../../services/LanguageServices";
@@ -31,26 +35,29 @@ import ThemeServices from "../../services/ThemeServices";
 import CountryServices from "../../services/CountryServices";
 import StoryServices from "../../services/StoryServices";
 import { onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 export default {
   setup() {
-    const router = useRoute();
+    const route = useRoute();
+    const router = useRouter();
 
     const prevLanguage = ref("");
     const prevCountry = ref("");
     const prevGenre = ref("");
     const prevTheme = ref("");
-    const prevPageCountry = ref(1);
+    const prevPageCountry = ref(0.5);
 
     const selectedLanguage = ref("");
     const selectedCountry = ref("");
     const selectedGenre = ref("");
     const selectedTheme = ref("");
-    const selectedPageCount = ref(1);
+    const selectedPageCount = ref(0.5);
     const selectedCharacters = ref([]);
     const isLoading = ref(false);
     const isSaving = ref(false);
+    const isDeleted = ref(false);
+    const isDeletedAttempt = ref(false);
     const story = ref({});
 
     const languages = ref([]);
@@ -62,7 +69,7 @@ export default {
     const storyOutput = ref("");
     const storyTitle = ref("");
     const saveAlert = ref(false);
-    const storyId = ref(router.params.id);
+    const storyId = ref(route.params.id);
 
     const textTemplate = `
 Language: Should change to {language}}.
@@ -226,11 +233,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
     const fetchStory = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const res = await StoryServices.getStoryById(user.userId, storyId.value);
-
-      console.log(res);
       const { status, data } = res;
-
-      console.log(data);
 
       if (status == 200) {
         story.value = data;
@@ -242,6 +245,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
         prevCountry.value = data.country;
         prevGenre.value = data.genre;
         prevTheme.value = data.theme;
+        prevPageCountry.value = data.pageCount;
 
         selectedLanguage.value = data.language;
         selectedCountry.value = data.country;
@@ -284,6 +288,19 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
     };
 
+    const deleteStory = async (story) => {
+      isDeletedAttempt.value = true;
+      const user = JSON.parse(localStorage.getItem("user"));
+      const res = await StoryServices.deleteStory(user.userId, story.id);
+      const { status } = res;
+
+      if (status == 200) {
+        isDeleted.value = true;
+      } else {
+        isDeleted.value = false;
+      }
+    };
+
     onMounted(() => {
       fetchData();
       fetchStory();
@@ -291,6 +308,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
     });
 
     return {
+      story,
       languages,
       genres,
       themes,
@@ -305,9 +323,12 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       storyTitle,
       isLoading,
       isSaving,
+      isDeleted,
+      isDeletedAttempt,
       saveAlert,
       update,
       save,
+      deleteStory,
     };
   },
 };
@@ -316,8 +337,25 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
 <template>
   <div>
-    <h1>Edit Story</h1>
-    <v-container class="container">
+    <div class="d-flex space-between">
+      <h1 class="me-auto">Edit Story</h1>
+      <v-btn class="delete" @click="deleteStory(story)">Delete</v-btn>
+    </div>
+
+    <div>
+      <v-alert v-if="isDeleted" color="success" variant="outlined"
+        >Story was deleted.
+        <a href="/dashboard/stories">Go back to stories</a>
+      </v-alert>
+
+      <v-alert
+        v-if="!isDeleted && isDeletedAttempt"
+        color="error"
+        variant="outlined"
+        >Something went wrong. Please try again</v-alert
+      >
+    </div>
+    <v-container class="container" v-if="!isDeleted">
       <div class="d-flex ga-4">
         <div>
           <h3>Build</h3>
