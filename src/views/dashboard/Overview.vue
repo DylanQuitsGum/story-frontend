@@ -303,7 +303,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
               density="compact"
               width="200"
               label="Page Count"
-              :items="[1, 2, 3, 4]"
+              :items="[0.5, 1, 2, 3]"
             ></v-select>
           </section>
 
