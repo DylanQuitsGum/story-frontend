@@ -36,10 +36,17 @@ import { useRoute } from "vue-router";
 export default {
   setup() {
     const router = useRoute();
-    const selectedLanguage = ref("English");
-    const selectedCountry = ref("United States");
-    const selectedGenre = ref("Adventure");
-    const selectedTheme = ref("Friendship");
+
+    const prevLanguage = ref("");
+    const prevCountry = ref("");
+    const prevGenre = ref("");
+    const prevTheme = ref("");
+    const prevPageCountry = ref(1);
+
+    const selectedLanguage = ref("");
+    const selectedCountry = ref("");
+    const selectedGenre = ref("");
+    const selectedTheme = ref("");
     const selectedPageCount = ref(1);
     const selectedCharacters = ref([]);
     const isLoading = ref(false);
@@ -55,11 +62,10 @@ export default {
     const storyOutput = ref("");
     const storyTitle = ref("");
     const saveAlert = ref(false);
-
     const storyId = ref(router.params.id);
 
-    const preambleTemplate = `
-Language: Should be written in {{language}}.
+    const textTemplate = `
+Language: Should change to {language}}.
 Setting: The story takes place in a {{country}}.
 Genre: The genre of the story should be {{genre}}.
 Theme: The story should be about {{theme}}.
@@ -68,8 +74,15 @@ Target Audience: This story is aimed at preschoolers aged 3-5.
 Tone: The tone should be gentle and heartwarming, with moments of humor.
 `;
 
+    const languageTemplate = `Please change the story language written to {{language}}`;
+    const countryTemplate = `Please change the country in the story to {{country}}`;
+    const genreTemplate = `Please change the story's genre to {{genre}}`;
+    const themeTemplate = `Please change the story's theme to {{theme}}`;
+    const pageCountTemplate = `Please change the story page count to {{pages}}`;
+
     watch(selectedLanguage, (newValue, oldValue) => {
       selectedLanguage.value = newValue;
+
       buildPreamble();
     });
 
@@ -94,7 +107,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
     });
 
     function buildPreamble() {
-      const preambleNew = preambleTemplate
+      const preambleNew = textTemplate
         .replace("{{language}}", selectedLanguage.value)
         .replace("{{country}}", selectedCountry.value)
         .replace("{{genre}}", selectedGenre.value)
@@ -163,7 +176,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
     };
 
-    const create = async () => {
+    const update = async () => {
       isLoading.value = true;
       const preampleObj = {
         preamble: preamble.value,
@@ -171,17 +184,15 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       };
 
       try {
-        const result = await StoryServices.createStory(preampleObj);
-        const { status, data } = result;
-
-        console.log(result);
-
-        if (status == 201) {
-          storyConversationId.value = data.response.conversationId;
-          storyOutput.value = data.response.story;
-          storyTitle.value = data.response.title.replace(/['"]+/g, "");
-          isLoading.value = false;
-        }
+        //const result = await StoryServices.createStory(preampleObj);
+        // const { status, data } = result;
+        // console.log(result);
+        // if (status == 201) {
+        //   storyConversationId.value = data.response.conversationId;
+        //   storyOutput.value = data.response.story;
+        //   storyTitle.value = data.response.title.replace(/['"]+/g, "");
+        //   isLoading.value = false;
+        // }
       } catch (err) {
         console.error(`Error: ${err}`);
       } finally {
@@ -219,10 +230,23 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       console.log(res);
       const { status, data } = res;
 
+      console.log(data);
+
       if (status == 200) {
         story.value = data;
         storyTitle.value = data.title;
         storyOutput.value = data.text;
+        storyConversationId.value = data.conversationId;
+
+        prevLanguage.value = data.language;
+        prevCountry.value = data.country;
+        prevGenre.value = data.genre;
+        prevTheme.value = data.theme;
+
+        selectedLanguage.value = data.language;
+        selectedCountry.value = data.country;
+        selectedGenre.value = data.genre;
+        selectedTheme.value = data.theme;
 
         //check if language exist
         const languageExist = languages.value.some(
@@ -282,7 +306,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       isLoading,
       isSaving,
       saveAlert,
-      create,
+      update,
       save,
     };
   },
@@ -370,7 +394,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
               class="fixed-btn"
               :class="{ grey: isLoading }"
               :readonly="isLoading"
-              @click="create"
+              @click="update"
             >
               <span class="px-2">Update</span>
               <img

@@ -34,8 +34,8 @@ import { onMounted, ref, watch } from "vue";
 
 export default {
   setup() {
-    const selectedLanguage = ref("English");
-    const selectedCountry = ref("United States");
+    const selectedLanguage = ref("");
+    const selectedCountry = ref("");
     const selectedGenre = ref("Adventure");
     const selectedTheme = ref("Friendship");
     const selectedPageCount = ref(1);
@@ -113,7 +113,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
         if (status == 200) {
           languages.value = data;
-          console.log(languages.value);
+          selectedLanguage.value = languages.value[0].language || "";
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -127,6 +127,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
         if (status == 200) {
           genres.value = data;
+          selectedGenre.value = genres.value[0].genre || "";
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -140,6 +141,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
         if (status == 200) {
           themes.value = data;
+          selectedTheme.value = themes.value[0].theme || "";
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -153,6 +155,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
         if (status == 200) {
           countries.value = data;
+          selectedCountry.value = countries.value[0].country || "";
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -161,13 +164,13 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
     const create = async () => {
       isLoading.value = true;
-      const preampleObj = {
+      const preambleObj = {
         preamble: preamble.value,
         prompt: "Write me a children's story",
       };
 
       try {
-        const result = await StoryServices.createStory(preampleObj);
+        const result = await StoryServices.createStory(preambleObj);
         const { status, data } = result;
 
         console.log(result);
