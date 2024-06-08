@@ -24,6 +24,11 @@ const router = createRouter({
       component: () => import("./views/Register.vue"),
     },
     {
+      path: "/story/:id",
+      name: "story",
+      component: () => import("./views/Story.vue"),
+    },
+    {
       path: "/dashboard",
       name: "dashboard",
       component: Dashboard,
@@ -52,6 +57,16 @@ const router = createRouter({
           component: Characters,
         },
         {
+          path: "edit/:id",
+          name: "edit",
+          component: () => import("./views/dashboard/EditStory.vue"),
+        },
+        {
+          path: "settings",
+          name: "settings",
+          component: () => import("./views/dashboard/Settings.vue"),
+        },
+        {
           path: "characters/:id",
           name: "character-details",
           component: () => import("./views/dashboard/EditCharacter.vue"),
@@ -60,7 +75,7 @@ const router = createRouter({
           path: "addCharacter",
           name: "new-character-details",
           component: () => import("./views/dashboard/AddCharacter.vue"),
-        }
+        },
       ],
     },
   ],

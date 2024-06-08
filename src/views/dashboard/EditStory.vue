@@ -31,17 +31,27 @@ import ThemeServices from "../../services/ThemeServices";
 import CountryServices from "../../services/CountryServices";
 import StoryServices from "../../services/StoryServices";
 import { onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 export default {
   setup() {
+    const router = useRoute();
+
+    const prevLanguage = ref("");
+    const prevCountry = ref("");
+    const prevGenre = ref("");
+    const prevTheme = ref("");
+    const prevPageCountry = ref(1);
+
     const selectedLanguage = ref("");
     const selectedCountry = ref("");
-    const selectedGenre = ref("Adventure");
-    const selectedTheme = ref("Friendship");
+    const selectedGenre = ref("");
+    const selectedTheme = ref("");
     const selectedPageCount = ref(1);
     const selectedCharacters = ref([]);
     const isLoading = ref(false);
     const isSaving = ref(false);
+    const story = ref({});
 
     const languages = ref([]);
     const genres = ref([]);
@@ -52,9 +62,10 @@ export default {
     const storyOutput = ref("");
     const storyTitle = ref("");
     const saveAlert = ref(false);
+    const storyId = ref(router.params.id);
 
-    const preambleTemplate = `
-Language: Should be written in {{language}}.
+    const textTemplate = `
+Language: Should change to {language}}.
 Setting: The story takes place in a {{country}}.
 Genre: The genre of the story should be {{genre}}.
 Theme: The story should be about {{theme}}.
@@ -63,8 +74,15 @@ Target Audience: This story is aimed at preschoolers aged 3-5.
 Tone: The tone should be gentle and heartwarming, with moments of humor.
 `;
 
+    const languageTemplate = `Please change the story language written to {{language}}`;
+    const countryTemplate = `Please change the country in the story to {{country}}`;
+    const genreTemplate = `Please change the story's genre to {{genre}}`;
+    const themeTemplate = `Please change the story's theme to {{theme}}`;
+    const pageCountTemplate = `Please change the story page count to {{pages}}`;
+
     watch(selectedLanguage, (newValue, oldValue) => {
       selectedLanguage.value = newValue;
+
       buildPreamble();
     });
 
@@ -89,7 +107,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
     });
 
     function buildPreamble() {
-      const preambleNew = preambleTemplate
+      const preambleNew = textTemplate
         .replace("{{language}}", selectedLanguage.value)
         .replace("{{country}}", selectedCountry.value)
         .replace("{{genre}}", selectedGenre.value)
@@ -113,7 +131,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
         if (status == 200) {
           languages.value = data;
-          selectedLanguage.value = languages.value[0].language || "";
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -127,7 +144,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
         if (status == 200) {
           genres.value = data;
-          selectedGenre.value = genres.value[0].genre || "";
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -141,7 +157,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
         if (status == 200) {
           themes.value = data;
-          selectedTheme.value = themes.value[0].theme || "";
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -155,32 +170,29 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
         if (status == 200) {
           countries.value = data;
-          selectedCountry.value = countries.value[0].country || "";
         }
       } catch (err) {
         console.error("Error fetching data:", err);
       }
     };
 
-    const create = async () => {
+    const update = async () => {
       isLoading.value = true;
-      const preambleObj = {
+      const preampleObj = {
         preamble: preamble.value,
         prompt: "Write me a children's story",
       };
 
       try {
-        const result = await StoryServices.createStory(preambleObj);
-        const { status, data } = result;
-
-        console.log(result);
-
-        if (status == 201) {
-          storyConversationId.value = data.response.conversationId;
-          storyOutput.value = data.response.story;
-          storyTitle.value = data.response.title.replace(/['"]+/g, "");
-          isLoading.value = false;
-        }
+        //const result = await StoryServices.createStory(preampleObj);
+        // const { status, data } = result;
+        // console.log(result);
+        // if (status == 201) {
+        //   storyConversationId.value = data.response.conversationId;
+        //   storyOutput.value = data.response.story;
+        //   storyTitle.value = data.response.title.replace(/['"]+/g, "");
+        //   isLoading.value = false;
+        // }
       } catch (err) {
         console.error(`Error: ${err}`);
       } finally {
@@ -199,10 +211,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
           conversationId: storyConversationId.value,
           title: storyTitle.value,
           userId: user.userId,
-          language: selectedLanguage.value,
-          country: selectedCountry.value,
-          genre: selectedGenre.value,
-          theme: selectedTheme.value,
         });
 
         const { status } = result;
@@ -215,8 +223,70 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
     };
 
+    const fetchStory = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const res = await StoryServices.getStoryById(user.userId, storyId.value);
+
+      console.log(res);
+      const { status, data } = res;
+
+      console.log(data);
+
+      if (status == 200) {
+        story.value = data;
+        storyTitle.value = data.title;
+        storyOutput.value = data.text;
+        storyConversationId.value = data.conversationId;
+
+        prevLanguage.value = data.language;
+        prevCountry.value = data.country;
+        prevGenre.value = data.genre;
+        prevTheme.value = data.theme;
+
+        selectedLanguage.value = data.language;
+        selectedCountry.value = data.country;
+        selectedGenre.value = data.genre;
+        selectedTheme.value = data.theme;
+
+        //check if language exist
+        const languageExist = languages.value.some(
+          (obj) => obj.language == data.language
+        );
+        const countryExist = countries.value.some(
+          (obj) => obj.country == data.country
+        );
+        const genreExist = genres.value.some((obj) => obj.genre == data.genre);
+        const themeExist = themes.value.some((obj) => obj.theme == data.theme);
+
+        if (!languageExist) {
+          languages.value.push({
+            language: data.language,
+          });
+        }
+
+        if (!countryExist) {
+          countries.value.push({
+            country: data.country,
+          });
+        }
+
+        if (!genreExist) {
+          genres.value.push({
+            genre: data.genre,
+          });
+        }
+
+        if (!themeExist) {
+          themes.value.push({
+            theme: data.theme,
+          });
+        }
+      }
+    };
+
     onMounted(() => {
       fetchData();
+      fetchStory();
       buildPreamble();
     });
 
@@ -236,7 +306,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       isLoading,
       isSaving,
       saveAlert,
-      create,
+      update,
       save,
     };
   },
@@ -246,7 +316,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
 <template>
   <div>
-    <h1>Craft your story</h1>
+    <h1>Edit Story</h1>
     <v-container class="container">
       <div class="d-flex ga-4">
         <div>
@@ -324,9 +394,9 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
               class="fixed-btn"
               :class="{ grey: isLoading }"
               :readonly="isLoading"
-              @click="create"
+              @click="update"
             >
-              <span class="px-2">CRAFT</span>
+              <span class="px-2">Update</span>
               <img
                 class="pr-1"
                 src="./../../assets/icons/magic-wand.png"

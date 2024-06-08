@@ -31,6 +31,12 @@
               </template>
               <div class="px-2">Characters</div>
             </v-list-item>
+            <v-list-item link :to="{ path: '/dashboard/settings' }" key="3">
+              <template v-slot:prepend>
+                <img src="./../../assets/icons/settings.png" width="20" />
+              </template>
+              <div class="px-2">Settings</div>
+            </v-list-item>
           </v-list>
         </v-navigation-drawer>
 
