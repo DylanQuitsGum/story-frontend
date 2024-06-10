@@ -31,6 +31,7 @@ import ThemeServices from "../../services/ThemeServices";
 import CountryServices from "../../services/CountryServices";
 import StoryServices from "../../services/StoryServices";
 import CharacterServices from "../../services/CharacterServices";
+import StoryCharacterServices from "../../services/StoryCharacterServices";
 import { onMounted, ref, watch } from "vue";
 
 export default {
@@ -213,6 +214,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
         const result = await StoryServices.createStory(preambleObj);
         const { status, data } = result;
 
+        console.log(data);
         if (status == 201) {
           storyConversationId.value = data.response.conversationId;
           storyOutput.value = data.response.story;
@@ -244,7 +246,22 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
           pageCount: selectedPageCount.value,
         });
 
-        const { status } = result;
+        const { data, status } = result;
+        const storyId = data.id;
+
+        if (selectedCharacters.value.length > 0) {
+          const storyCharacters = selectedCharacters.value.map((c) => ({
+            ...c,
+            storyId,
+            id: undefined,
+          }));
+
+          const storyCharacterResult = await StoryCharacterServices.create({
+            userId: user.userId,
+            storyId,
+            data: storyCharacters,
+          });
+        }
 
         if (status == 201) {
           saveAlert.value = true;
@@ -277,7 +294,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
 
       characterPrompt.value = characterPromptBuilder;
-      console.log(characterPrompt.value);
     };
 
     onMounted(() => {

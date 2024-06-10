@@ -34,11 +34,14 @@ import GenreServices from "../../services/GenreServices";
 import ThemeServices from "../../services/ThemeServices";
 import CountryServices from "../../services/CountryServices";
 import StoryServices from "../../services/StoryServices";
+import StoryCharacterServices from "../../services/StoryCharacterServices";
+import CharacterServices from "../../services/CharacterServices";
 import { onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 export default {
   setup() {
+    const user = JSON.parse(localStorage.getItem("user"));
     const route = useRoute();
     const router = useRouter();
 
@@ -46,7 +49,7 @@ export default {
     const prevCountry = ref("");
     const prevGenre = ref("");
     const prevTheme = ref("");
-    const prevPageCountry = ref(0.5);
+    const prevPageCount = ref(0.5);
 
     const selectedLanguage = ref("");
     const selectedCountry = ref("");
@@ -58,73 +61,123 @@ export default {
     const isSaving = ref(false);
     const isDeleted = ref(false);
     const isDeletedAttempt = ref(false);
+    const isDialogOpen = ref(false);
     const story = ref({});
 
     const languages = ref([]);
     const genres = ref([]);
     const themes = ref([]);
     const countries = ref([]);
-    const preamble = ref("");
+    const userCharacters = ref([]);
     const storyConversationId = ref("");
     const storyOutput = ref("");
     const storyTitle = ref("");
     const saveAlert = ref(false);
     const storyId = ref(route.params.id);
 
-    const textTemplate = `
-Language: Should change to {language}}.
-Setting: The story takes place in a {{country}}.
-Genre: The genre of the story should be {{genre}}.
-Theme: The story should be about {{theme}}.
-Length: The story should be approximately {{pages}} pages long.
-Target Audience: This story is aimed at preschoolers aged 3-5.
-Tone: The tone should be gentle and heartwarming, with moments of humor.
-`;
+    const languagePrompt = ref("");
+    const countryPrompt = ref("");
+    const genrePrompt = ref("");
+    const themePrompt = ref("");
+    const pageCountPrompt = ref("");
+    const storyCharactersPrompt = ref("");
 
-    const languageTemplate = `Please change the story language written to {{language}}`;
-    const countryTemplate = `Please change the country in the story to {{country}}`;
-    const genreTemplate = `Please change the story's genre to {{genre}}`;
-    const themeTemplate = `Please change the story's theme to {{theme}}`;
-    const pageCountTemplate = `Please change the story page count to {{pages}}`;
+    const languageTemplate = `Change the story language written to {{language}}. `;
+    const countryTemplate = `Change the country in the story to {{country}}. `;
+    const genreTemplate = `Change the story genre to {{genre}}. `;
+    const themeTemplate = `Change the story theme to {{theme}}. `;
+    const pageCountTemplate = `Change the story's length to {{pageCount}} page long. `;
 
     watch(selectedLanguage, (newValue, oldValue) => {
       selectedLanguage.value = newValue;
 
-      buildPreamble();
+      if (selectedLanguage.value != prevLanguage.value) {
+        languagePrompt.value = languageTemplate.replace(
+          "{{language}}",
+          selectedLanguage.value
+        );
+      } else {
+        languagePrompt.value = "";
+      }
     });
 
     watch(selectedCountry, (newValue, oldValue) => {
       selectedCountry.value = newValue;
-      buildPreamble();
+
+      if (selectedCountry.value != prevCountry.value) {
+        countryPrompt.value = countryTemplate.replace(
+          "{{country}}",
+          selectedCountry.value
+        );
+      } else {
+        countryPrompt.value = "";
+      }
     });
 
     watch(selectedGenre, (newValue, oldValue) => {
       selectedGenre.value = newValue;
-      buildPreamble();
+
+      if (selectedGenre.value != prevGenre.value) {
+        genrePrompt.value = genreTemplate.replace(
+          "{{genre}}",
+          selectedGenre.value
+        );
+      } else {
+        genrePrompt.value = "";
+      }
     });
 
     watch(selectedTheme, (newValue, oldValue) => {
       selectedTheme.value = newValue;
-      buildPreamble();
+
+      if (selectedTheme.value != prevTheme.value) {
+        themePrompt.value = themeTemplate.replace(
+          "{{theme}}",
+          selectedTheme.value
+        );
+      } else {
+        themePrompt.value = "";
+      }
     });
 
     watch(selectedPageCount, (newValue, oldValue) => {
       selectedPageCount.value = newValue;
-      buildPreamble();
+
+      if (selectedPageCount.value != prevPageCount.value) {
+        pageCountPrompt.value = pageCountTemplate.replace(
+          "{{pageCount}}",
+          selectedPageCount.value
+        );
+      } else {
+        pageCountPrompt.value = "";
+      }
     });
 
-    function buildPreamble() {
-      const preambleNew = textTemplate
-        .replace("{{language}}", selectedLanguage.value)
-        .replace("{{country}}", selectedCountry.value)
-        .replace("{{genre}}", selectedGenre.value)
-        .replace("{{theme}}", selectedTheme.value)
-        .replace("{{pages}}", selectedPageCount.value);
+    watch(userCharacters, (newValue, oldValue) => {
+      userCharacters.value = newValue;
+    });
 
-      preamble.value = preambleNew;
-    }
+    const updateCharacters = () => {
+      let characterPromptBuilder = "";
+
+      let characters = userCharacters.value.filter((c) => c.enabled);
+
+      characters.map((c) => {
+        let text = `The character is ${c.firstName}`;
+        if (c.role != "") {
+          text += ` with a role playing as ${c.role}.\n`;
+        } else {
+          text += ".\n";
+        }
+
+        characterPromptBuilder += text;
+      });
+
+      storyCharactersPrompt.value = characterPromptBuilder;
+    };
 
     const fetchData = async () => {
+      await fetchUserCharacters();
       await fetchLanguages();
       await fetchGenres();
       await fetchThemes();
@@ -183,56 +236,52 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
     };
 
-    const update = async () => {
-      isLoading.value = true;
-      const preampleObj = {
-        preamble: preamble.value,
-        prompt: "Write me a children's story",
-      };
-
-      try {
-        //const result = await StoryServices.createStory(preampleObj);
-        // const { status, data } = result;
-        // console.log(result);
-        // if (status == 201) {
-        //   storyConversationId.value = data.response.conversationId;
-        //   storyOutput.value = data.response.story;
-        //   storyTitle.value = data.response.title.replace(/['"]+/g, "");
-        //   isLoading.value = false;
-        // }
-      } catch (err) {
-        console.error(`Error: ${err}`);
-      } finally {
-        isLoading.value = false;
-      }
-    };
-
-    const save = async () => {
-      if (storyOutput.value == "" || storyTitle.value == "") return;
-
+    const fetchUserCharacters = async () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
+        const res = await CharacterServices.getAll(user.userId);
 
-        const result = await StoryServices.saveStory({
-          story: storyOutput.value,
-          conversationId: storyConversationId.value,
-          title: storyTitle.value,
-          userId: user.userId,
-        });
+        const { status, data } = res;
 
-        const { status } = result;
-
-        if (status == 201) {
-          saveAlert.value = true;
+        if (status == 200) {
+          userCharacters.value = data.map((c) => ({
+            ...c,
+            role: c.role,
+            enabled: false,
+          }));
         }
       } catch (err) {
-        console.error(`Error: ${err}`);
+        console.error(err);
       }
     };
 
     const fetchStory = async () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const res = await StoryServices.getStoryById(user.userId, storyId.value);
+
+      const storyCharactersRes = await StoryCharacterServices.getAll({
+        userId: user.userId,
+        storyId: storyId.value,
+      });
+
+      const storyCharacterSet = new Map(
+        storyCharactersRes.data.map((c) => [`${c.firstName} ${c.lastName}`, c])
+      );
+
+      const updatedCharacters = userCharacters.value.map((c) => {
+        let obj = { ...c };
+        if (storyCharacterSet.has(`${c.firstName} ${c.lastName}`)) {
+          (obj.enabled = true),
+            (obj.role = storyCharacterSet.get(
+              `${c.firstName} ${c.lastName}`
+            ).role);
+        }
+        return obj;
+      });
+
+      //fill the checkbox and role
+      userCharacters.value = updatedCharacters;
+
       const { status, data } = res;
 
       if (status == 200) {
@@ -245,7 +294,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
         prevCountry.value = data.country;
         prevGenre.value = data.genre;
         prevTheme.value = data.theme;
-        prevPageCountry.value = data.pageCount;
+        prevPageCount.value = data.pageCount;
 
         selectedLanguage.value = data.language;
         selectedCountry.value = data.country;
@@ -288,6 +337,110 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
     };
 
+    const update = async () => {
+      isLoading.value = true;
+
+      console.log("update!");
+      console.log(storyConversationId.value);
+
+      let newPrompt = `Refer to the story created from this conversation earlier.
+        Don't give me the title, just update the story.\n`;
+
+      if (languagePrompt.value != "") {
+        newPrompt += languagePrompt.value;
+      }
+
+      if (countryPrompt.value != "") {
+        newPrompt += countryPrompt.value;
+      }
+
+      if (genrePrompt.value != "") {
+        newPrompt += genrePrompt.value;
+      }
+
+      if (themePrompt.value != "") {
+        newPrompt += themePrompt.value;
+      }
+
+      if (pageCountPrompt.value != "") {
+        newPrompt += pageCountPrompt.value;
+      }
+
+      if (storyCharactersPrompt.value != "") {
+        newPrompt += `\n
+        I will give you a list of characters. 
+        If they already in the story with the same role, don't change it.
+        If their name are in story, but are not on the list, remove them.
+        If their name are on the list and not in the story, add them to the story. 
+        If their name are on the list and in the story but has different role now, change their role in the story. \n`;
+
+        newPrompt += ` The list is: \n`;
+        newPrompt += storyCharactersPrompt.value;
+      }
+
+      console.log(newPrompt);
+
+      const preambleObj = {
+        preamble: "You are a children's book writer",
+        prompt: newPrompt,
+        conversationId: storyConversationId.value,
+      };
+
+      try {
+        const result = await StoryServices.createStory(preambleObj);
+        const { status, data } = result;
+        console.log(result);
+
+        if (status == 201) {
+          storyConversationId.value = story.id;
+          storyOutput.value = "";
+          storyOutput.value = data.text;
+
+          //update the story on db
+          const updatedResult = await StoryServices.updateStory({
+            storyId: storyId.value,
+            title: storyTitle.value,
+            story: storyOutput.value,
+            conversationId: storyConversationId.value,
+            userId: user.userId,
+            language: selectedLanguage.value,
+            country: selectedCountry.value,
+            genre: selectedGenre.value,
+            theme: selectedTheme.value,
+            pageCount: selectedPageCount.value,
+          });
+
+          console.log(updatedResult);
+
+          //delete all characters of this story
+          const deleteResult = await StoryCharacterServices.deleteAll({
+            userId: user.userId,
+            storyId: storyId.value,
+          });
+
+          const storyCharacters = userCharacters.value
+            .filter((c) => c.enabled)
+            .map((c) => ({
+              ...c,
+              storyId: storyId.value,
+              id: undefined,
+            }));
+
+          const storyCharacterResult = await StoryCharacterServices.create({
+            userId: user.userId,
+            storyId: storyId.value,
+            data: storyCharacters,
+          });
+
+          isLoading.value = false;
+        }
+      } catch (err) {
+        console.error(`Error: ${err}`);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
     const deleteStory = async (story) => {
       isDeletedAttempt.value = true;
       const user = JSON.parse(localStorage.getItem("user"));
@@ -301,10 +454,14 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       }
     };
 
-    onMounted(() => {
-      fetchData();
-      fetchStory();
-      buildPreamble();
+    const closeDialog = () => {
+      isDialogOpen.value = false;
+      updateCharacters();
+    };
+
+    onMounted(async () => {
+      await fetchData();
+      await fetchStory();
     });
 
     return {
@@ -313,6 +470,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       genres,
       themes,
       countries,
+      userCharacters,
       selectedLanguage,
       selectedCountry,
       selectedGenre,
@@ -325,10 +483,11 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       isSaving,
       isDeleted,
       isDeletedAttempt,
+      isDialogOpen,
       saveAlert,
       update,
-      save,
       deleteStory,
+      closeDialog,
     };
   },
 };
@@ -416,20 +575,57 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
           </section>
 
           <section>
-            <v-select
-              v-model="selectedCharacters"
-              variant="outlined"
-              density="compact"
+            <v-btn
+              class="mb-4"
+              color="gray-2"
+              append-icon="mdi-plus"
               width="200"
-              label="Characters"
-              :items="['bob', 'joe']"
-              multiple
-            ></v-select>
+              variant="outlined"
+              @click="isDialogOpen = true"
+              >Characters</v-btn
+            >
+            <v-dialog width="auto" v-model="isDialogOpen" scrollable>
+              <v-card class="pa-4 center-dialog" width="600">
+                <h2>Add Characters to your story</h2>
+
+                <v-list>
+                  <v-list-item
+                    v-for="character in userCharacters"
+                    :key="character.id"
+                  >
+                    <template v-slot:prepend>
+                      <v-checkbox v-model="character.enabled"></v-checkbox>
+                    </template>
+
+                    <template v-slot:title>
+                      <h4>
+                        {{ character.firstName }} {{ character.lastName }}
+                      </h4>
+                      <div class="d-flex ga-4">
+                        <v-text-field
+                          label="Role"
+                          v-model="character.role"
+                          placeholder="Thief, Archer, Warrior, Bishop, etc..."
+                          variant="outlined"
+                          density="compact"
+                          width="100"
+                          :disabled="!character.enabled"
+                        ></v-text-field>
+                      </div>
+                    </template>
+                  </v-list-item>
+                </v-list>
+                <template v-slot:actions>
+                  <v-btn @click="closeDialog">Save</v-btn>
+                </template>
+              </v-card>
+            </v-dialog>
           </section>
 
           <div>
             <v-btn
-              class="fixed-btn"
+              class="mt-2"
+              width="200"
               :class="{ grey: isLoading }"
               :readonly="isLoading"
               @click="update"
@@ -481,14 +677,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
             {{ storyTitle }} was saved. You can read it
             <a href="/dashboard/stories">here</a>
           </v-alert>
-
-          <v-btn
-            class="fixed-btn float-right"
-            :class="{ grey: isLoading }"
-            :readonly="isLoading"
-            @click="save"
-            >Save</v-btn
-          >
         </div>
       </div>
     </v-container>
