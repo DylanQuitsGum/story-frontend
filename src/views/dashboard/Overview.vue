@@ -30,6 +30,8 @@ import GenreServices from "../../services/GenreServices";
 import ThemeServices from "../../services/ThemeServices";
 import CountryServices from "../../services/CountryServices";
 import StoryServices from "../../services/StoryServices";
+import CharacterServices from "../../services/CharacterServices";
+import StoryCharacterServices from "../../services/StoryCharacterServices";
 import { onMounted, ref, watch } from "vue";
 
 export default {
@@ -38,19 +40,22 @@ export default {
     const selectedCountry = ref("");
     const selectedGenre = ref("Adventure");
     const selectedTheme = ref("Friendship");
-    const selectedPageCount = ref(1);
+    const selectedPageCount = ref(0.5);
     const selectedCharacters = ref([]);
     const isLoading = ref(false);
     const isSaving = ref(false);
+    const isDialogOpen = ref(false);
 
     const languages = ref([]);
     const genres = ref([]);
     const themes = ref([]);
     const countries = ref([]);
+    const userCharacters = ref([]);
     const preamble = ref("");
     const storyConversationId = ref("");
     const storyOutput = ref("");
     const storyTitle = ref("");
+    const characterPrompt = ref("");
     const saveAlert = ref(false);
 
     const preambleTemplate = `
@@ -62,6 +67,8 @@ Length: The story should be approximately {{pages}} pages long.
 Target Audience: This story is aimed at preschoolers aged 3-5.
 Tone: The tone should be gentle and heartwarming, with moments of humor.
 `;
+
+    const characterTemplate = `Include the character in the story name {{name}}`;
 
     watch(selectedLanguage, (newValue, oldValue) => {
       selectedLanguage.value = newValue;
@@ -88,6 +95,11 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       buildPreamble();
     });
 
+    watch(selectedCharacters, (newValue, oldValue) => {
+      console.log(newValue);
+      selectedCharacters.value = newValue;
+    });
+
     function buildPreamble() {
       const preambleNew = preambleTemplate
         .replace("{{language}}", selectedLanguage.value)
@@ -104,6 +116,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       await fetchGenres();
       await fetchThemes();
       await fetchCountries();
+      await fetchCharacters();
     };
 
     const fetchLanguages = async () => {
@@ -158,23 +171,50 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
           selectedCountry.value = countries.value[0].country || "";
         }
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching data: ", err);
+      }
+    };
+
+    const fetchCharacters = async () => {
+      const user = JSON.parse(localStorage.getItem("user"));
+
+      try {
+        const res = await CharacterServices.getAll(user.userId);
+        console.log(res);
+
+        const { status, data } = res;
+
+        if (status == 200) {
+          userCharacters.value = data.map((character) => ({
+            ...character,
+            role: "",
+            enabled: false,
+          }));
+        }
+      } catch (err) {
+        console.error("Error fetching data: ", err);
       }
     };
 
     const create = async () => {
       isLoading.value = true;
+
+      let promptTextBuilder = "Write me a children's story. ";
+
+      if (characterPrompt.value != "") {
+        promptTextBuilder += characterPrompt.value;
+      }
+
       const preambleObj = {
         preamble: preamble.value,
-        prompt: "Write me a children's story",
+        prompt: promptTextBuilder,
       };
 
       try {
         const result = await StoryServices.createStory(preambleObj);
         const { status, data } = result;
 
-        console.log(result);
-
+        console.log(data);
         if (status == 201) {
           storyConversationId.value = data.response.conversationId;
           storyOutput.value = data.response.story;
@@ -203,9 +243,25 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
           country: selectedCountry.value,
           genre: selectedGenre.value,
           theme: selectedTheme.value,
+          pageCount: selectedPageCount.value,
         });
 
-        const { status } = result;
+        const { data, status } = result;
+        const storyId = data.id;
+
+        if (selectedCharacters.value.length > 0) {
+          const storyCharacters = selectedCharacters.value.map((c) => ({
+            ...c,
+            storyId,
+            id: undefined,
+          }));
+
+          const storyCharacterResult = await StoryCharacterServices.create({
+            userId: user.userId,
+            storyId,
+            data: storyCharacters,
+          });
+        }
 
         if (status == 201) {
           saveAlert.value = true;
@@ -213,6 +269,31 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       } catch (err) {
         console.error(`Error: ${err}`);
       }
+    };
+
+    const closeDialog = () => {
+      isDialogOpen.value = false;
+      selectedCharacters.value = userCharacters.value.filter((c) => c.enabled);
+
+      let characterPromptBuilder = "";
+      if (selectedCharacters.value.length > 0) {
+        selectedCharacters.value.map((c) => {
+          console.log(c.firstName);
+          let characterText = characterTemplate.replace(
+            "{{name}}",
+            c.firstName
+          );
+          if (c.role != "") {
+            characterText += ` playing as ${c.role}. `;
+          } else {
+            characterText += ". ";
+          }
+
+          characterPromptBuilder += characterText;
+        });
+      }
+
+      characterPrompt.value = characterPromptBuilder;
     };
 
     onMounted(() => {
@@ -225,6 +306,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       genres,
       themes,
       countries,
+      userCharacters,
       selectedLanguage,
       selectedCountry,
       selectedGenre,
@@ -235,9 +317,11 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       storyTitle,
       isLoading,
       isSaving,
+      isDialogOpen,
       saveAlert,
       create,
       save,
+      closeDialog,
     };
   },
 };
@@ -308,20 +392,60 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
           </section>
 
           <section>
-            <v-select
-              v-model="selectedCharacters"
-              variant="outlined"
-              density="compact"
+            <v-btn
+              class="mb-4"
+              color="gray-2"
+              append-icon="mdi-plus"
               width="200"
-              label="Characters"
-              :items="['bob', 'joe']"
-              multiple
-            ></v-select>
+              variant="outlined"
+              @click="isDialogOpen = true"
+              >Characters</v-btn
+            >
+            <v-dialog width="auto" v-model="isDialogOpen" scrollable>
+              <v-card class="pa-4 center-dialog" width="600">
+                <h2>Add Characters to your story</h2>
+
+                <v-list>
+                  <v-list-item
+                    v-for="character in userCharacters"
+                    :key="character.id"
+                  >
+                    <template v-slot:prepend>
+                      <v-checkbox
+                        :value="character.id"
+                        v-model="character.enabled"
+                      ></v-checkbox>
+                    </template>
+
+                    <template v-slot:title>
+                      <h4>
+                        {{ character.firstName }} {{ character.lastName }}
+                      </h4>
+                      <div class="d-flex ga-4">
+                        <v-text-field
+                          label="Role"
+                          v-model="character.role"
+                          placeholder="Thief, Archer, Warrior, Bishop, etc..."
+                          variant="outlined"
+                          density="compact"
+                          width="100"
+                          :disabled="!character.enabled"
+                        ></v-text-field>
+                      </div>
+                    </template>
+                  </v-list-item>
+                </v-list>
+                <template v-slot:actions>
+                  <v-btn @click="closeDialog">Save</v-btn>
+                </template>
+              </v-card>
+            </v-dialog>
           </section>
 
           <div>
             <v-btn
-              class="fixed-btn"
+              class="success mt-2"
+              width="200"
               :class="{ grey: isLoading }"
               :readonly="isLoading"
               @click="create"
@@ -379,6 +503,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
             :class="{ grey: isLoading }"
             :readonly="isLoading"
             @click="save"
+            v-if="storyTitle != '' && storyOutput != ''"
             >Save</v-btn
           >
         </div>

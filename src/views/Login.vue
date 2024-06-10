@@ -89,6 +89,7 @@ async function login() {
             label="Password"
             variant="outlined"
             required
+            type="password"
           ></v-text-field>
         </v-card-text>
         <v-card-text class="error">

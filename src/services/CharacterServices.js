@@ -2,7 +2,7 @@ import apiClient from "./services";
 
 export default {
   getAll(userId) {
-    return apiClient.get("/characters");
+    return apiClient.get(`/users/${userId}/characters`);
   },
 
   get(id) {

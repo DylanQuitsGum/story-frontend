@@ -8,8 +8,8 @@
 }
 
 .export-btn {
-  background-color: #41f061;
-  background-image: linear-gradient(160deg, #30ee7f 0%, #2dcc94 100%);
+  background-color: #4af66f;
+  background-image: linear-gradient(160deg, #64f6a1 0%, #62f8b5 100%);
 }
 </style>
 

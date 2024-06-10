@@ -3,6 +3,14 @@
   height: 140px;
   overflow: hidden;
 }
+
+.read {
+  color: rgb(30, 114, 173);
+}
+
+.edit {
+  color: rgb(99, 99, 99);
+}
 </style>
 <script>
 import { ref, onMounted } from "vue";
@@ -87,8 +95,8 @@ export default {
             }}</v-card-text>
 
             <v-card-actions>
-              <v-btn text="Read" @click="readStory(story)"></v-btn>
-              <v-btn text="Edit" @click="editStory(story)"></v-btn>
+              <v-btn class="read" text="Read" @click="readStory(story)"></v-btn>
+              <v-btn class="edit" text="Edit" @click="editStory(story)"></v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
