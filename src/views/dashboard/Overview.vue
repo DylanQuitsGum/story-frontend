@@ -199,7 +199,8 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
     const create = async () => {
       isLoading.value = true;
 
-      let promptTextBuilder = "Write me a children's story. ";
+      let promptTextBuilder =
+        "Write me a children's story. Don't give me the title.\n";
 
       if (characterPrompt.value != "") {
         promptTextBuilder += characterPrompt.value;
