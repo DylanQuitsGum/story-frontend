@@ -61,10 +61,11 @@ export default {
     },
     retrieveCharacters() {
       const user = JSON.parse(localStorage.getItem("user"));
+      console.log(user);
       CharacterServices.getAll(user.userId)
         .then((response) => {
+          console.log(response);
           this.characters = response.data.map(this.getDisplayCharacter);
-          console.log(response.data);
         })
         .catch((e) => {
           console.log(e);
@@ -76,9 +77,9 @@ export default {
     },
 
     removeAllCharacters() {
-      CharacterServices.deleteAll()
+      const user = JSON.parse(localStorage.getItem("user"));
+      CharacterServices.deleteAll(user.userId)
         .then((response) => {
-          console.log(response.data);
           this.refreshList();
         })
         .catch((e) => {
@@ -91,7 +92,8 @@ export default {
     },
 
     deleteCharacter(id) {
-      CharacterServices.delete(id)
+      const user = JSON.parse(localStorage.getItem("user"));
+      CharacterServices.delete({ userId: user.userId, characterId: id })
         .then(() => {
           this.refreshList();
         })

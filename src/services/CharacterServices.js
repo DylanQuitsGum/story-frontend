@@ -17,11 +17,11 @@ export default {
     return apiClient.put(`/characters/${id}`, data);
   },
 
-  delete(id) {
-    return apiClient.delete(`/characters/${id}`);
+  delete({ userId, characterId }) {
+    return apiClient.delete(`/users/${userId}/characters/${characterId}`);
   },
 
-  deleteAll() {
-    return apiClient.delete(`/characters`);
+  deleteAll(userId) {
+    return apiClient.delete(`/users/${userId}/characters`);
   },
 };

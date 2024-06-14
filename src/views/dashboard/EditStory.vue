@@ -300,6 +300,7 @@ export default {
         selectedCountry.value = data.country;
         selectedGenre.value = data.genre;
         selectedTheme.value = data.theme;
+        selectedPageCount.value = data.pageCount;
 
         //check if language exist
         const languageExist = languages.value.some(
@@ -411,6 +412,12 @@ export default {
           });
 
           console.log(updatedResult);
+
+          const { status } = updatedResult;
+
+          if (status == 200) {
+            saveAlert.value = true;
+          }
 
           //delete all characters of this story
           const deleteResult = await StoryCharacterServices.deleteAll({
