@@ -59,10 +59,11 @@ export default {
   },
   methods: {
     saveCharacter() {
+      const user = JSON.parse(localStorage.getItem("user"));
       var data = {
         firstName: this.character.firstName,
         lastName: this.character.lastName,
-        userId: this.character.userId,
+        userId: user.userId,
       };
 
       CharacterServices.create(data)

@@ -64,6 +64,7 @@ const router = createRouter({
         {
           path: "settings",
           name: "settings",
+          meta: { requiresAdmin: true },
           component: () => import("./views/dashboard/Settings.vue"),
         },
         {
@@ -74,7 +75,6 @@ const router = createRouter({
         {
           path: "addCharacter",
           name: "new-character-details",
-          meta: { requiresAdmin: true },
           component: () => import("./views/dashboard/AddCharacter.vue"),
         },
       ],
@@ -92,12 +92,10 @@ router.beforeEach((to, from, next) => {
   ) {
     next({
       path: "/login",
-      // query: { redirect: to.fullPath },
     });
   }
 
   if (
-    isAuthenticated() &&
     to.matched.some((record) => record.meta.requiresAdmin) &&
     currentUser.role != "admin"
   ) {
