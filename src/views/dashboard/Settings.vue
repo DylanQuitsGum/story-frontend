@@ -1,10 +1,14 @@
+<style scoped>
+</style>
+
 <template>
   <v-container>
     <v-row>
       <v-col cols="12" md="6">
         <v-card class="mx-auto" tile>
           <v-card-title>Countries</v-card-title>
-          <v-data-table
+          <v-data-table-virtual
+            :loading="isCountryLoading"
             :headers="countryHeaders"
             :items="countries"
             disable-pagination
@@ -15,29 +19,19 @@
                 >mdi-delete</v-icon
               >
             </template>
-          </v-data-table>
+          </v-data-table-virtual>
 
-          <v-card-actions v-if="countries.length > 0">
-            <v-btn small color="error" @click="removeAllCountries">
+          <v-card-actions>
+            <v-btn
+              v-if="countries.length > 0"
+              small
+              color="error"
+              @click="removeAllCountries"
+            >
               Remove All
             </v-btn>
 
             <v-text-field
-              :loading="loading"
-              type="input"
-              v-model="newCountry"
-              append-inner-icon="mdi-plus"
-              density="compact"
-              label="Add Country"
-              variant="solo"
-              hide-details
-              single-line
-              @click:append-inner="saveCountry"
-            ></v-text-field>
-          </v-card-actions>
-          <v-card-actions v-if="countries.length == 0">
-            <v-text-field
-              :loading="loading"
               type="input"
               v-model="newCountry"
               append-inner-icon="mdi-plus"
@@ -54,7 +48,8 @@
       <v-col cols="12" md="6">
         <v-card class="mx-auto" tile>
           <v-card-title>Genres</v-card-title>
-          <v-data-table
+          <v-data-table-virtual
+            :loading="isGenreLoading"
             :headers="genreHeaders"
             :items="genres"
             disable-pagination
@@ -65,29 +60,19 @@
                 >mdi-delete</v-icon
               >
             </template>
-          </v-data-table>
+          </v-data-table-virtual>
 
-          <v-card-actions v-if="genres.length > 0">
-            <v-btn small color="error" @click="removeAllGenres">
+          <v-card-actions>
+            <v-btn
+              v-if="genres.length > 0"
+              small
+              color="error"
+              @click="removeAllGenres"
+            >
               Remove All
             </v-btn>
 
             <v-text-field
-              :loading="loading"
-              type="input"
-              v-model="newGenre"
-              append-inner-icon="mdi-plus"
-              density="compact"
-              label="Add Genre"
-              variant="solo"
-              hide-details
-              single-line
-              @click:append-inner="saveGenre"
-            ></v-text-field>
-          </v-card-actions>
-          <v-card-actions v-if="genres.length == 0">
-            <v-text-field
-              :loading="loading"
               type="input"
               v-model="newGenre"
               append-inner-icon="mdi-plus"
@@ -106,7 +91,9 @@
       <v-col cols="12" md="6">
         <v-card class="mx-auto" tile>
           <v-card-title>Themes</v-card-title>
-          <v-data-table
+          <v-data-table-virtual
+            class="table"
+            :loading="isThemeLoading"
             :headers="themeHeaders"
             :items="themes"
             disable-pagination
@@ -117,29 +104,19 @@
                 >mdi-delete</v-icon
               >
             </template>
-          </v-data-table>
+          </v-data-table-virtual>
 
-          <v-card-actions v-if="themes.length > 0">
-            <v-btn small color="error" @click="removeAllThemes">
+          <v-card-actions>
+            <v-btn
+              v-if="themes.length > 0"
+              small
+              color="error"
+              @click="removeAllThemes"
+            >
               Remove All
             </v-btn>
 
             <v-text-field
-              :loading="loading"
-              type="input"
-              v-model="newTheme"
-              append-inner-icon="mdi-plus"
-              density="compact"
-              label="Add Theme"
-              variant="solo"
-              hide-details
-              single-line
-              @click:append-inner="saveTheme"
-            ></v-text-field>
-          </v-card-actions>
-          <v-card-actions v-if="themes.length == 0">
-            <v-text-field
-              :loading="loading"
               type="input"
               v-model="newTheme"
               append-inner-icon="mdi-plus"
@@ -156,7 +133,8 @@
       <v-col cols="12" md="6">
         <v-card class="mx-auto" tile>
           <v-card-title>Languages</v-card-title>
-          <v-data-table
+          <v-data-table-virtual
+            class="table"
             :headers="languageHeaders"
             :items="languages"
             disable-pagination
@@ -167,29 +145,20 @@
                 >mdi-delete</v-icon
               >
             </template>
-          </v-data-table>
+          </v-data-table-virtual>
 
-          <v-card-actions v-if="languages.length > 0">
-            <v-btn small color="error" @click="removeAllLanguages">
+          <v-card-actions>
+            <v-btn
+              v-if="languages.length > 0"
+              small
+              color="error"
+              @click="removeAllLanguages"
+            >
               Remove All
             </v-btn>
 
             <v-text-field
-              :loading="loading"
-              type="input"
-              v-model="newLanguage"
-              append-inner-icon="mdi-plus"
-              density="compact"
-              label="Add Language"
-              variant="solo"
-              hide-details
-              single-line
-              @click:append-inner="saveLanguage"
-            ></v-text-field>
-          </v-card-actions>
-          <v-card-actions v-if="languages.length == 0">
-            <v-text-field
-              :loading="loading"
+              :loading="isLanguageLoading"
               type="input"
               v-model="newLanguage"
               append-inner-icon="mdi-plus"
@@ -227,6 +196,10 @@ export default {
       newGenre: "",
       newTheme: "",
       newLanguage: "",
+      isCountryLoading: false,
+      isGenreLoading: false,
+      isThemeLoading: false,
+      isLanguageLoading: false,
       countryHeaders: [
         {
           text: "Country",
@@ -272,10 +245,7 @@ export default {
       };
 
       CountryServices.create(data)
-        .then((response) => {
-          this.country.id = response.data.id;
-          this.submitted = true;
-        })
+        .then((response) => {})
         .catch((e) => {
           console.log(e);
         })
@@ -289,14 +259,11 @@ export default {
       };
 
       GenreServices.create(data)
-        .then((response) => {
-          this.genre.id = response.data.id;
-          this.submitted = true;
-        })
+        .then((response) => {})
         .catch((e) => {
           console.log(e);
         })
-        .finally(() =>{
+        .finally(() => {
           this.refreshGenres();
         });
     },
@@ -306,10 +273,7 @@ export default {
       };
 
       ThemeServices.create(data)
-        .then((response) => {
-          this.theme.id = response.data.id;
-          this.submitted = true;
-        })
+        .then((response) => {})
         .catch((e) => {
           console.log(e);
         })
@@ -323,10 +287,7 @@ export default {
       };
 
       LanguageServices.create(data)
-        .then((response) => {
-          this.language.id = response.data.id;
-          this.submitted = true;
-        })
+        .then((response) => {})
         .catch((e) => {
           console.log(e);
         })
@@ -336,44 +297,45 @@ export default {
     },
 
     retrieveCountries() {
-      const user = JSON.parse(localStorage.getItem("user"));
+      this.isCountryLoading = true;
       CountryServices.getCountries()
         .then((response) => {
+          console.log(response);
           this.countries = response.data.map(this.getDisplayCountry);
-          console.log(response.data);
+          this.isCountryLoading = false;
         })
         .catch((e) => {
           console.log(e);
         });
     },
     retrieveGenres() {
-      const user = JSON.parse(localStorage.getItem("user"));
+      this.isGenreLoading = true;
       GenreServices.getGenres()
         .then((response) => {
           this.genres = response.data.map(this.getDisplayGenre);
-          console.log(response.data);
+          this.isGenreLoading = false;
         })
         .catch((e) => {
           console.log(e);
         });
     },
     retrieveThemes() {
-      const user = JSON.parse(localStorage.getItem("user"));
+      this.isThemeLoading = true;
       ThemeServices.getThemes()
         .then((response) => {
           this.themes = response.data.map(this.getDisplayTheme);
-          console.log(response.data);
+          this.isThemeLoading = false;
         })
         .catch((e) => {
           console.log(e);
         });
     },
     retrieveLanguages() {
-      const user = JSON.parse(localStorage.getItem("user"));
+      this.isLanguageLoading = true;
       LanguageServices.getLanguages()
         .then((response) => {
           this.languages = response.data.map(this.getDisplayLanguage);
-          console.log(response.data);
+          this.isLanguageLoading = false;
         })
         .catch((e) => {
           console.log(e);

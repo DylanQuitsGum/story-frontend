@@ -7,6 +7,24 @@
 }
 </style>
 
+<script>
+import { ref } from "vue";
+
+export default {
+  setup() {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    console.log(currentUser);
+    const isAdmin = ref(currentUser.role == "admin");
+
+    return {
+      currentUser,
+      isAdmin,
+    };
+  },
+};
+</script>
+
+
 <template>
   <div class="main">
     <v-app>
@@ -31,7 +49,12 @@
               </template>
               <div class="px-2">Characters</div>
             </v-list-item>
-            <v-list-item link :to="{ path: '/dashboard/settings' }" key="3">
+            <v-list-item
+              v-if="isAdmin"
+              link
+              :to="{ path: '/dashboard/settings' }"
+              key="3"
+            >
               <template v-slot:prepend>
                 <img src="./../../assets/icons/settings.png" width="20" />
               </template>
@@ -49,6 +72,3 @@
     </v-app>
   </div>
 </template>
-
-<script>
-</script>

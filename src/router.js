@@ -74,6 +74,7 @@ const router = createRouter({
         {
           path: "addCharacter",
           name: "new-character-details",
+          meta: { requiresAdmin: true },
           component: () => import("./views/dashboard/AddCharacter.vue"),
         },
       ],
@@ -83,6 +84,8 @@ const router = createRouter({
 
 //route guard
 router.beforeEach((to, from, next) => {
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+
   if (
     to.matched.some((record) => record.meta.requiresAuth) &&
     !isAuthenticated()
@@ -91,9 +94,17 @@ router.beforeEach((to, from, next) => {
       path: "/login",
       // query: { redirect: to.fullPath },
     });
-  } else {
-    next();
   }
+
+  if (
+    isAuthenticated() &&
+    to.matched.some((record) => record.meta.requiresAdmin) &&
+    currentUser.role != "admin"
+  ) {
+    next({ path: "/dashboard" });
+  }
+
+  next();
 });
 
 export default router;

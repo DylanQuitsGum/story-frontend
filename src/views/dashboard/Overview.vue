@@ -180,7 +180,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
 
       try {
         const res = await CharacterServices.getAll(user.userId);
-        console.log(res);
 
         const { status, data } = res;
 
@@ -215,7 +214,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
         const result = await StoryServices.createStory(preambleObj);
         const { status, data } = result;
 
-        console.log(data);
         if (status == 201) {
           storyConversationId.value = data.response.conversationId;
           storyOutput.value = data.response.story;
@@ -279,7 +277,6 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       let characterPromptBuilder = "";
       if (selectedCharacters.value.length > 0) {
         selectedCharacters.value.map((c) => {
-          console.log(c.firstName);
           let characterText = characterTemplate.replace(
             "{{name}}",
             c.firstName
