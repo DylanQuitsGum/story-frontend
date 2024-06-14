@@ -68,10 +68,6 @@ async function login() {
     }
   }
 }
-
-function closeSnackBar() {
-  snackbar.value.value = false;
-}
 </script>
 
 
@@ -93,6 +89,7 @@ function closeSnackBar() {
             label="Password"
             variant="outlined"
             required
+            type="password"
           ></v-text-field>
         </v-card-text>
         <v-card-text class="error">

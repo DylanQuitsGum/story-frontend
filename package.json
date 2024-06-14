@@ -13,6 +13,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^8.28.0",
     "eslint-plugin-vue": "^9.7.0",
+    "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
     "postcss": "^8.4.38",
@@ -20,7 +21,7 @@
     "tailwindcss": "^3.4.3",
     "vue": "^3.2.41",
     "vue-router": "^4.3.2",
-    "vuetify": "^3.2.3",
+    "vuetify": "^3.6.8",
     "vuex": "^4.0.2",
     "webfontloader": "^1.6.28"
   },

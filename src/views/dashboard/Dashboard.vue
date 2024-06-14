@@ -1,17 +1,37 @@
 <style scoped>
-.layout {
-  height: 100vh;
+.main {
+  color: rgb(50, 50, 50);
+}
+.nav {
+  background: #f6ffde;
 }
 </style>
 
+<script>
+import { ref } from "vue";
+
+export default {
+  setup() {
+    const currentUser = JSON.parse(localStorage.getItem("user"));
+    console.log(currentUser);
+    const isAdmin = ref(currentUser.role == "admin");
+
+    return {
+      currentUser,
+      isAdmin,
+    };
+  },
+};
+</script>
+
+
 <template>
-  <div>
+  <div class="main">
     <v-app>
       <v-layout class="border">
-        <h1>Test</h1>
-        <v-navigation-drawer permanent>
+        <v-navigation-drawer class="nav" permanent>
           <v-list>
-            <v-list-item link :to="{ path: '/dashboard' }" key="1">
+            <v-list-item link :to="{ path: '/dashboard/overview' }" key="1">
               <template v-slot:prepend>
                 <img src="./../../assets/icons/house.png" width="20" />
               </template>
@@ -29,10 +49,21 @@
               </template>
               <div class="px-2">Characters</div>
             </v-list-item>
+            <v-list-item
+              v-if="isAdmin"
+              link
+              :to="{ path: '/dashboard/settings' }"
+              key="3"
+            >
+              <template v-slot:prepend>
+                <img src="./../../assets/icons/settings.png" width="20" />
+              </template>
+              <div class="px-2">Settings</div>
+            </v-list-item>
           </v-list>
         </v-navigation-drawer>
 
-        <v-main>
+        <v-main class="main">
           <v-container>
             <router-view></router-view>
           </v-container>
@@ -41,6 +72,3 @@
     </v-app>
   </div>
 </template>
-
-<script>
-</script>

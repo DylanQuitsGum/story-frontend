@@ -24,6 +24,11 @@ const router = createRouter({
       component: () => import("./views/Register.vue"),
     },
     {
+      path: "/story/:id",
+      name: "story",
+      component: () => import("./views/Story.vue"),
+    },
+    {
       path: "/dashboard",
       name: "dashboard",
       component: Dashboard,
@@ -33,6 +38,7 @@ const router = createRouter({
       children: [
         {
           path: "",
+          name: "dashboarddefault",
           redirect: "overview",
         },
         {
@@ -47,8 +53,29 @@ const router = createRouter({
         },
         {
           path: "characters",
-          name: "characters",
+          name: "characters-list",
           component: Characters,
+        },
+        {
+          path: "edit/:id",
+          name: "edit",
+          component: () => import("./views/dashboard/EditStory.vue"),
+        },
+        {
+          path: "settings",
+          name: "settings",
+          meta: { requiresAdmin: true },
+          component: () => import("./views/dashboard/Settings.vue"),
+        },
+        {
+          path: "characters/:id",
+          name: "character-details",
+          component: () => import("./views/dashboard/EditCharacter.vue"),
+        },
+        {
+          path: "addCharacter",
+          name: "new-character-details",
+          component: () => import("./views/dashboard/AddCharacter.vue"),
         },
       ],
     },
@@ -57,17 +84,25 @@ const router = createRouter({
 
 //route guard
 router.beforeEach((to, from, next) => {
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+
   if (
     to.matched.some((record) => record.meta.requiresAuth) &&
     !isAuthenticated()
   ) {
     next({
       path: "/login",
-      // query: { redirect: to.fullPath },
     });
-  } else {
-    next();
   }
+
+  if (
+    to.matched.some((record) => record.meta.requiresAdmin) &&
+    currentUser.role != "admin"
+  ) {
+    next({ path: "/dashboard" });
+  }
+
+  next();
 });
 
 export default router;

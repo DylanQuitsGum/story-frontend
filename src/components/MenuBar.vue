@@ -62,7 +62,7 @@ function logout() {
                 {{ user.email }}
               </p>
               <v-divider class="my-3"></v-divider>
-              <v-btn rounded variant="text" @click="logout()"> Logout </v-btn>
+              <v-btn rounded variant="text" @click="logout"> Logout </v-btn>
             </div>
           </v-card-text>
         </v-card>
