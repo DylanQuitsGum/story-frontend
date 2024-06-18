@@ -28,6 +28,197 @@
   color: rgb(255, 110, 110);
 }
 </style>
+
+<template>
+  <div>
+    <div class="d-flex space-between">
+      <h1 class="me-auto">Edit Story</h1>
+      <v-btn class="delete" @click="deleteStory(story)">Delete</v-btn>
+    </div>
+
+    <div>
+      <v-alert v-if="isDeleted" color="success" variant="outlined"
+        >Story was deleted.
+        <a href="/dashboard/stories">Go back to stories</a>
+      </v-alert>
+
+      <v-alert
+        v-if="!isDeleted && isDeletedAttempt"
+        color="error"
+        variant="outlined"
+        >Something went wrong. Please try again</v-alert
+      >
+    </div>
+    <v-container class="container" v-if="!isDeleted">
+      <div class="d-flex ga-4">
+        <div>
+          <h3>Build</h3>
+          <br />
+          <section>
+            <v-select
+              v-model="selectedLanguage"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Languages"
+              :items="languages.map((l) => l.language)"
+            ></v-select>
+          </section>
+
+          <section>
+            <v-select
+              v-model="selectedCountry"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Country"
+              :items="countries.map((l) => l.country)"
+            ></v-select>
+          </section>
+
+          <section>
+            <v-select
+              v-model="selectedGenre"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Genre"
+              :items="genres.map((l) => l.genre)"
+            ></v-select>
+          </section>
+
+          <section>
+            <v-select
+              v-model="selectedTheme"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Theme"
+              :items="themes.map((l) => l.theme)"
+            ></v-select>
+          </section>
+
+          <section>
+            <v-select
+              v-model="selectedPageCount"
+              variant="outlined"
+              density="compact"
+              width="200"
+              label="Page Count"
+              :items="[0.5, 1, 2, 3]"
+            ></v-select>
+          </section>
+
+          <section>
+            <v-btn
+              class="mb-4"
+              color="gray-2"
+              append-icon="mdi-plus"
+              width="200"
+              variant="outlined"
+              @click="isDialogOpen = true"
+              >Characters</v-btn
+            >
+            <v-dialog width="auto" v-model="isDialogOpen" scrollable>
+              <v-card class="pa-4 center-dialog" width="600">
+                <h2>Add Characters to your story</h2>
+
+                <v-list>
+                  <v-list-item
+                    v-for="character in userCharacters"
+                    :key="character.id"
+                  >
+                    <template v-slot:prepend>
+                      <v-checkbox v-model="character.enabled"></v-checkbox>
+                    </template>
+
+                    <template v-slot:title>
+                      <h4>
+                        {{ character.firstName }} {{ character.lastName }}
+                      </h4>
+                      <div class="d-flex ga-4">
+                        <v-text-field
+                          label="Role"
+                          v-model="character.role"
+                          placeholder="Thief, Archer, Warrior, Bishop, etc..."
+                          variant="outlined"
+                          density="compact"
+                          width="100"
+                          :disabled="!character.enabled"
+                        ></v-text-field>
+                      </div>
+                    </template>
+                  </v-list-item>
+                </v-list>
+                <template v-slot:actions>
+                  <v-btn @click="closeDialog">Save</v-btn>
+                </template>
+              </v-card>
+            </v-dialog>
+          </section>
+
+          <div>
+            <v-btn
+              class="mt-2"
+              width="200"
+              :class="{ grey: isLoading }"
+              :readonly="isLoading"
+              @click="update"
+            >
+              <span class="px-2">Update</span>
+              <img
+                class="pr-1"
+                src="./../../assets/icons/magic-wand.png"
+                alt="hand settings"
+                width="20"
+            /></v-btn>
+          </div>
+        </div>
+        <div class="flex-grow-1">
+          <h3>Output</h3>
+          <br />
+
+          <div v-if="isLoading" class="load d-flex justify-center align-center">
+            <v-progress-circular
+              indeterminate
+              color="green"
+              :size="100"
+              :width="12"
+            ></v-progress-circular>
+          </div>
+
+          <div v-if="!isLoading">
+            <v-text-field
+              v-model="storyTitle"
+              label="Title"
+              variant="outlined"
+            ></v-text-field>
+            <v-textarea
+              v-model="storyOutput"
+              :rows="10"
+              label="Story"
+              variant="outlined"
+            >
+            </v-textarea>
+          </div>
+
+          <v-alert
+            class="mb-4"
+            v-model="saveAlert"
+            type="success"
+            variant="outlined"
+            closable
+          >
+            {{ storyTitle }} was saved. You can read it
+            <a href="/dashboard/stories">here</a>
+          </v-alert>
+        </div>
+      </div>
+    </v-container>
+  </div>
+</template>
+
+
 <script>
 import LanguageServices from "../../services/LanguageServices";
 import GenreServices from "../../services/GenreServices";
@@ -499,194 +690,3 @@ export default {
   },
 };
 </script>
-
-
-<template>
-  <div>
-    <div class="d-flex space-between">
-      <h1 class="me-auto">Edit Story</h1>
-      <v-btn class="delete" @click="deleteStory(story)">Delete</v-btn>
-    </div>
-
-    <div>
-      <v-alert v-if="isDeleted" color="success" variant="outlined"
-        >Story was deleted.
-        <a href="/dashboard/stories">Go back to stories</a>
-      </v-alert>
-
-      <v-alert
-        v-if="!isDeleted && isDeletedAttempt"
-        color="error"
-        variant="outlined"
-        >Something went wrong. Please try again</v-alert
-      >
-    </div>
-    <v-container class="container" v-if="!isDeleted">
-      <div class="d-flex ga-4">
-        <div>
-          <h3>Build</h3>
-          <br />
-          <section>
-            <v-select
-              v-model="selectedLanguage"
-              variant="outlined"
-              density="compact"
-              width="200"
-              label="Languages"
-              :items="languages.map((l) => l.language)"
-            ></v-select>
-          </section>
-
-          <section>
-            <v-select
-              v-model="selectedCountry"
-              variant="outlined"
-              density="compact"
-              width="200"
-              label="Country"
-              :items="countries.map((l) => l.country)"
-            ></v-select>
-          </section>
-
-          <section>
-            <v-select
-              v-model="selectedGenre"
-              variant="outlined"
-              density="compact"
-              width="200"
-              label="Genre"
-              :items="genres.map((l) => l.genre)"
-            ></v-select>
-          </section>
-
-          <section>
-            <v-select
-              v-model="selectedTheme"
-              variant="outlined"
-              density="compact"
-              width="200"
-              label="Theme"
-              :items="themes.map((l) => l.theme)"
-            ></v-select>
-          </section>
-
-          <section>
-            <v-select
-              v-model="selectedPageCount"
-              variant="outlined"
-              density="compact"
-              width="200"
-              label="Page Count"
-              :items="[0.5, 1, 2, 3]"
-            ></v-select>
-          </section>
-
-          <section>
-            <v-btn
-              class="mb-4"
-              color="gray-2"
-              append-icon="mdi-plus"
-              width="200"
-              variant="outlined"
-              @click="isDialogOpen = true"
-              >Characters</v-btn
-            >
-            <v-dialog width="auto" v-model="isDialogOpen" scrollable>
-              <v-card class="pa-4 center-dialog" width="600">
-                <h2>Add Characters to your story</h2>
-
-                <v-list>
-                  <v-list-item
-                    v-for="character in userCharacters"
-                    :key="character.id"
-                  >
-                    <template v-slot:prepend>
-                      <v-checkbox v-model="character.enabled"></v-checkbox>
-                    </template>
-
-                    <template v-slot:title>
-                      <h4>
-                        {{ character.firstName }} {{ character.lastName }}
-                      </h4>
-                      <div class="d-flex ga-4">
-                        <v-text-field
-                          label="Role"
-                          v-model="character.role"
-                          placeholder="Thief, Archer, Warrior, Bishop, etc..."
-                          variant="outlined"
-                          density="compact"
-                          width="100"
-                          :disabled="!character.enabled"
-                        ></v-text-field>
-                      </div>
-                    </template>
-                  </v-list-item>
-                </v-list>
-                <template v-slot:actions>
-                  <v-btn @click="closeDialog">Save</v-btn>
-                </template>
-              </v-card>
-            </v-dialog>
-          </section>
-
-          <div>
-            <v-btn
-              class="mt-2"
-              width="200"
-              :class="{ grey: isLoading }"
-              :readonly="isLoading"
-              @click="update"
-            >
-              <span class="px-2">Update</span>
-              <img
-                class="pr-1"
-                src="./../../assets/icons/magic-wand.png"
-                alt="hand settings"
-                width="20"
-            /></v-btn>
-          </div>
-        </div>
-        <div class="flex-grow-1">
-          <h3>Output</h3>
-          <br />
-
-          <div v-if="isLoading" class="load d-flex justify-center align-center">
-            <v-progress-circular
-              indeterminate
-              color="green"
-              :size="100"
-              :width="12"
-            ></v-progress-circular>
-          </div>
-
-          <div v-if="!isLoading">
-            <v-text-field
-              v-model="storyTitle"
-              label="Title"
-              variant="outlined"
-            ></v-text-field>
-            <v-textarea
-              v-model="storyOutput"
-              :rows="10"
-              label="Story"
-              variant="outlined"
-            >
-            </v-textarea>
-          </div>
-
-          <v-alert
-            class="mb-4"
-            v-model="saveAlert"
-            type="success"
-            variant="outlined"
-            closable
-          >
-            {{ storyTitle }} was saved. You can read it
-            <a href="/dashboard/stories">here</a>
-          </v-alert>
-        </div>
-      </div>
-    </v-container>
-  </div>
-</template>
-
