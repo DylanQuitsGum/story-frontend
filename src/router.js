@@ -3,6 +3,7 @@ import Dashboard from "@views/dashboard/Dashboard.vue";
 import Overview from "@views/dashboard/Overview.vue";
 import Characters from "@views/dashboard/Characters.vue";
 import Stories from "@views/dashboard/Stories.vue";
+import EditStory from "@views/dashboard/EditStory.vue";
 import { isAuthenticated } from "./auth";
 
 const router = createRouter({
@@ -59,7 +60,7 @@ const router = createRouter({
         {
           path: "edit/:id",
           name: "edit",
-          component: () => import("./views/dashboard/EditStory.vue"),
+          component: EditStory,
         },
         {
           path: "settings",
