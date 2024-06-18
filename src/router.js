@@ -93,16 +93,14 @@ router.beforeEach((to, from, next) => {
     next({
       path: "/login",
     });
-  }
-
-  if (
+  } else if (
     to.matched.some((record) => record.meta.requiresAdmin) &&
     currentUser.role != "admin"
   ) {
     next({ path: "/dashboard" });
+  } else {
+    next();
   }
-
-  next();
 });
 
 export default router;
