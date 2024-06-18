@@ -9,7 +9,7 @@ import vuetify from "vite-plugin-vuetify";
 
 export default () => {
   const baseURL =
-    process.env.APP_ENV === "development" ? "/" : "http://107.23.63.118/";
+    process.env.APP_ENV === "development" ? "/" : "https://107.23.63.118/";
 
   return defineConfig({
     resolve: {
