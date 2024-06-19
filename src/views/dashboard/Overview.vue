@@ -122,6 +122,7 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
     const fetchLanguages = async () => {
       try {
         const res = await LanguageServices.getLanguages();
+        console.log(res);
         const { data, status } = res;
 
         if (status == 200) {
