@@ -294,9 +294,9 @@ Tone: The tone should be gentle and heartwarming, with moments of humor.
       characterPrompt.value = characterPromptBuilder;
     };
 
-    onMounted(() => {
-      fetchData();
-      buildPreamble();
+    onMounted(async () => {
+      await fetchData();
+      await buildPreamble();
     });
 
     return {
