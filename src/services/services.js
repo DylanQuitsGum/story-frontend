@@ -4,7 +4,7 @@ var baseurl = "";
 if (process.env.NODE_ENV === "development") {
   baseurl = "http://localhost:3201/api/";
 } else {
-  baseurl = "http://107.23.63.118:3201/api/";
+  baseurl = "";
 }
 
 const apiClient = axios.create({
