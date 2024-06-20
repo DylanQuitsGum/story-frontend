@@ -6,7 +6,7 @@ import UserServices from "../services/UserServices";
 
 const router = useRouter();
 
-const user = ref(null);
+const user = ref(undefined);
 const logoURL = ref("");
 
 onMounted(() => {
@@ -44,8 +44,10 @@ function logout() {
       <v-btn v-if="user" class="mx-2" :to="{ name: 'overview' }">
         Dashboard
       </v-btn>
-      <v-btn v-if="!user" class="mx-2" :to="{ name: 'login' }"> Login </v-btn>
-      <v-btn v-if="user" @click="logout">Logout</v-btn>
+      <v-btn v-if="user == undefined" class="mx-2" :to="{ name: 'login' }">
+        Login
+      </v-btn>
+      <v-btn v-if="user != undefined" @click="logout">Logout</v-btn>
     </v-app-bar>
   </div>
 </template>
